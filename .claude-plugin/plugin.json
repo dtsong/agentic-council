@@ -1,0 +1,11 @@
+{
+  "name": "agentic-council",
+  "description": "Multi-agent design workflow — interview-first, dynamically-assembled council of 20 specialist agents that deliberate, debate, and produce an actionable build plan.",
+  "author": {
+    "name": "Daniel Song",
+    "email": "xdtsong@gmail.com"
+  },
+  "homepage": "https://github.com/dtsong/agentic-council",
+  "repository": "https://github.com/dtsong/agentic-council",
+  "license": "Apache-2.0"
+}

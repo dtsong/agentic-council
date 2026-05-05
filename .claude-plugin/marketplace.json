@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "plugins": [
+    {
+      "name": "agentic-council",
+      "description": "Multi-agent deliberation council for ambitious feature work.",
+      "source": {
+        "type": "git",
+        "repository": "https://github.com/dtsong/agentic-council.git"
+      }
+    }
+  ]
+}
