@@ -1,0 +1,42 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install pyyaml
+
+      - name: Plugin integrity validation
+        run: python3 scripts/validate.py
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run claude plugin validate
+        run: claude plugin validate .
+
+      - name: Boot plugin in --bare mode (no LLM call)
+        env:
+          CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"
+        run: |
+          # Just confirm the plugin loads without errors. We use --bare to skip
+          # network and auth, and pass /help via stdin so the CLI exits.
+          # This catches manifest/structural errors that only surface at boot.
+          mkdir -p /tmp/smoke && cd /tmp/smoke
+          timeout 30 claude --bare --plugin-dir "$GITHUB_WORKSPACE" -p "exit" || \
+            (echo "Plugin failed to boot — see logs above" && exit 1)

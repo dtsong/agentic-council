@@ -1,6 +1,6 @@
 # Department Index
 
-Routing table that maps each council department to its bundled skills. The shared deliberation engine reads this once per session during Phase 2.5 ("Skill Loading") instead of opening per-department `DEPARTMENT.md` files.
+Routing table that maps each council department to its bundled skills. The shared deliberation engine reads this once per session during Phase 2.5 ("Skill Loading") to learn which skill keys belong to which department.
 
 Each entry: `<department>` — list of `<dept>-<skill>` keys that resolve to `${CLAUDE_PLUGIN_ROOT}/skills/<dept>-<skill>/SKILL.md`.
 

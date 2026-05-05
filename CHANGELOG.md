@@ -1,0 +1,27 @@
+# Changelog
+
+All notable changes to agentic-council are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] — 2026-05-04
+
+### Added
+- Initial release of agentic-council as a standalone Claude Code plugin.
+- 20 council agents (`council-*`) covering systems, product, design, risk, and security perspectives.
+- 59 department-bundled skills (4 architect, 3 skeptic, 4 advocate, 3 craftsman, 3 scout, 3 strategist, 4 operator, 3 chronicler, 3 guardian, 3 tuner, 3 alchemist, 3 pathfinder, 3 artisan, 3 herald, 3 sentinel, 3 oracle, 3 cipher, 3 warden, 2 prover).
+- 6 slash commands: `/council`, `/brainstorm`, `/ship`, `/deepen`, `/handover`, plus the shared `_council-engine`.
+- Self-hosted single-plugin marketplace at `.claude-plugin/marketplace.json`.
+- Apache-2.0 licensed.
+- GitHub Actions CI running `scripts/validate.py` and `claude plugin validate` on every push and pull request.
+- Preflight check in the deliberation engine that detects missing `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and exits with a friendly install message.
+
+### Held back from v1.0.0
+- **Forge** — microarchitecture, RTL security, physical-design security
+- **Foundry** — chip design flow, verification methodology, SoC integration
+- **Accountant** — accounting, tax, audit
+
+These will ship in a future `agentic-council-ee` spin-off plugin.
+
+[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.0

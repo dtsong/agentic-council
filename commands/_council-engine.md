@@ -219,7 +219,7 @@ The engine reads `${CLAUDE_PLUGIN_ROOT}/references/department-index.md` once per
 
 ### How Skills Are Used
 
-1. **During Assembly (Phase 2.5):** The conductor reads each selected agent's `DEPARTMENT.md`, matches skill triggers against the idea + interview transcript, selects 1-2 skills per agent, and records loaded skills in `session.md`.
+1. **During Assembly (Phase 2.5):** The conductor consults `${CLAUDE_PLUGIN_ROOT}/references/department-index.md` to find each selected agent's available skills, matches skill triggers against the idea + interview transcript, selects 1-2 skills per agent, and records loaded skills in `session.md`.
 2. **During Deliberation (Phase 3):** Skill content is inlined into agent round messages — agents follow the Process steps and include skill-formatted outputs as appendices.
 3. **During Execution (Phase 5):** Task assignments include the relevant skill so agents follow structured methodology.
 4. **After session:** The conductor updates `registry.json` (increment uses, set last_used, append session slug) and appends observations to each skill's `## Evolution Notes`.
