@@ -1,12 +1,24 @@
 {
-  "version": "1",
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agentic-council",
+  "description": "Self-hosted single-plugin marketplace for agentic-council — a multi-agent deliberation council for ambitious feature work.",
+  "owner": {
+    "name": "Daniel Song",
+    "email": "xdtsong@gmail.com"
+  },
   "plugins": [
     {
       "name": "agentic-council",
-      "description": "Multi-agent deliberation council for ambitious feature work.",
+      "description": "Multi-agent design workflow — interview-first, dynamically-assembled council of 20 specialist agents that deliberate, debate, and produce an actionable build plan.",
+      "author": {
+        "name": "Daniel Song",
+        "email": "xdtsong@gmail.com"
+      },
+      "category": "development",
+      "homepage": "https://github.com/dtsong/agentic-council",
       "source": {
-        "type": "git",
-        "repository": "https://github.com/dtsong/agentic-council.git"
+        "source": "url",
+        "url": "https://github.com/dtsong/agentic-council.git"
       }
     }
   ]
