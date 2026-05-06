@@ -1,8 +1,8 @@
 # agentic-council
 
-A Claude Code plugin that turns any "big idea" into an actionable build plan through structured multi-agent deliberation.
+> A 20-agent council that interviews, debates, and produces an actionable build plan for your hardest engineering decisions.
 
-`/council` interviews you, assembles a dynamic panel of 20 specialist agents (Architect, Skeptic, Strategist, Operator, Tuner, Guardian, …), runs them through three rounds of position → challenge → synthesis, and emits a design + implementation plan ready for execution.
+Single-agent coding assistants give one perspective. Real engineering decisions need many: an architect reasoning about boundaries, a skeptic naming what could break, a tuner asking about cost at scale, a guardian flagging the privacy footprint. **agentic-council** stages that conversation. Twenty specialist personas convene around your prompt, post positions, debate, and converge on a build plan you can ship.
 
 ## Install
 
@@ -17,75 +17,132 @@ Then enable the agent-teams runtime that the council requires:
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 ```
 
-See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting.
+See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. The `/council` engine has a preflight check that prints this instruction if the flag is missing.
+
+## Quick start
+
+```bash
+/council --brainstorm "Should we migrate from Node to Bun?"
+/council --quick      "Add a tournament coach feature"
+/council --meet       "Re-architect the billing stack"
+/council --audit      "Audit our authentication stack"
+```
+
+Each mode scales differently:
+
+| Mode | Agents | Rounds | Use when |
+|---|---|---|---|
+| `--brainstorm` | 3 | 1 | Gut check, pre-decision ideation |
+| `--quick` | 5 | 1 | You know roughly what you want |
+| (default) | 5 to 9 | 3 | Ambitious feature, full deliberation |
+| `--deep` | 5 to 9 | 3 + audit | Max rigor, ~1 hour |
+| `--meet` | 5 to 9 | 3 | Discussion only, no plan |
+| `--audit` | 4 to 6 | 1 | Adversarial codebase review |
+
+## How it works
+
+1. **Intake.** "What's the big idea?"
+2. **Interview.** Steward asks 3 to 7 questions to disambiguate scope, constraints, and success.
+3. **Assembly.** Steward picks 5 to 9 council members based on the topic. Architect is always seated; Advocate, Skeptic, Guardian, and Tuner get bonus weight for relevant domains.
+4. **Deliberation.** Three rounds: Position, Challenge, Synthesis. Tension pairs surface organically (Skeptic vs Strategist, Operator vs Tuner).
+5. **Output.** Design doc, implementation plan, and an optional PRD ready to hand to `/ship`.
+
+## Persistence and context handoff
+
+Every session writes to `.claude/council/sessions/<slug>/` in your workspace, capturing each phase as a discrete artifact:
+
+```
+.claude/council/sessions/<slug>/
+├── interview.md         # Phase 1 questions and answers
+├── assembly.md          # Phase 2 roster and rationale
+├── deliberation/
+│   ├── round-1.md       # Each agent's opening position
+│   ├── round-2.md       # Cross-examination and rebuttals
+│   └── round-3.md       # Synthesis
+├── design.md            # Phase 4 design doc
+└── plan.md              # Phase 4 build plan
+```
+
+This is the key to the council pattern. Subsequent agents read prior rounds from disk so context flows agent-to-agent without bloating the parent context window. A 9-agent, 3-round deliberation that would blow past any single context window stays lean because each agent only loads what it needs.
+
+Session lifecycle commands:
+
+| Command | Purpose |
+|---|---|
+| `/council --resume` | Resume the most recent active session |
+| `/council --resume <slug>` | Resume a specific session |
+| `/council --list [--all]` | List sessions in this workspace (or all) |
+| `/council --status` | Quick workspace summary |
+| `/council --archive <slug>` | Export a session to a GitHub issue |
+| `/council --cleanup` | Review and remove stale sessions |
+
+A cross-workspace registry at `~/.claude/council/` tracks usage across projects, and `/handover` exports session knowledge for the next Claude conversation to pick up cold.
+
+Plugin assets are read-only at `${CLAUDE_PLUGIN_ROOT}`. Session and registry data always lives in your workspace and home directory.
 
 ## Commands shipped
 
 | Command | What it does |
 |---|---|
-| `/council "<idea>"` | Full workflow — interview, assembly, 3-round deliberation, design, plan |
+| `/council "<idea>"` | Full workflow: interview, assembly, 3-round deliberation, design, plan |
 | `/council --brainstorm "<idea>"` | 30-second gut check from 3 agents |
 | `/council --quick "<idea>"` | Skip interview, single round |
-| `/council --deep "<idea>"` | Full council + mandatory deep audit |
-| `/council --meet "<question>"` | Discussion only — no action plan |
+| `/council --deep "<idea>"` | Full council plus mandatory deep audit |
+| `/council --meet "<question>"` | Discussion only, no action plan |
 | `/council --audit "<area>"` | Direct codebase audit |
 | `/brainstorm "<idea>"` | Top-level alias for `/council --brainstorm` |
-| `/ship` | Post-council pipeline: implement → review → fix → PR |
-| `/deepen` | Architecture review — find shallow modules |
+| `/ship` | Post-council pipeline: implement, review, fix, PR |
+| `/deepen` | Architecture review, find shallow modules |
 | `/handover` | Save session knowledge to a handover doc |
 
-Run `/council --help` for the complete reference, including `--resume`, `--list`, `--archive`, `--cleanup`.
+Run `/council --help` for the complete reference.
 
-## The Council (20 agents in v1.0.0)
+## The council
 
-**Engineering & systems**
-- **Architect** — system design, data models, APIs
-- **Craftsman** — testing strategy, code quality, patterns
-- **Operator** — DevOps, deployment, infrastructure
-- **Tuner** — performance, scalability, optimization
-- **Alchemist** — data engineering, ML workflows
-- **Sentinel** — IoT, embedded, edge protocols
-- **Pathfinder** — mobile, cross-platform, native
+**Engineering and systems**
+- **Architect** for system design, data models, APIs
+- **Craftsman** for testing strategy, code quality, patterns
+- **Operator** for DevOps, deployment, infrastructure
+- **Tuner** for performance, scalability, optimization
+- **Alchemist** for data engineering, ML workflows
+- **Sentinel** for IoT, embedded, edge protocols
+- **Pathfinder** for mobile, cross-platform, native
 
-**Product & design**
-- **Strategist** — business value, scope, MVP
-- **Advocate** — UX, product thinking, accessibility
-- **Artisan** — visual design, design systems, motion
-- **Herald** — growth, monetization, onboarding
-- **Scout** — research, precedent, external knowledge
-- **Chronicler** — documentation, knowledge architecture
+**Product and design**
+- **Strategist** for business value, scope, MVP
+- **Advocate** for UX, product thinking, accessibility
+- **Artisan** for visual design, design systems, motion
+- **Herald** for growth, monetization, onboarding
+- **Scout** for research, precedent, external knowledge
+- **Chronicler** for documentation, knowledge architecture
 
-**Risk & integrity**
-- **Skeptic** — risk, devil's advocate, edge cases
-- **Guardian** — compliance, governance, privacy
-- **Cipher** — cryptographic engineering, protocol security
-- **Warden** — OS kernel security, isolation
-- **Prover** — formal methods, mathematical verification
-- **Oracle** — AI/LLM integration, RAG, prompt engineering
+**Risk and integrity**
+- **Skeptic** for risk, devil's advocate, edge cases
+- **Guardian** for compliance, governance, privacy
+- **Cipher** for cryptographic engineering, protocol security
+- **Warden** for OS kernel security, isolation
+- **Prover** for formal methods, mathematical verification
+- **Oracle** for AI/LLM integration, RAG, prompt engineering
 
 **Maestro**
-- **Steward** — facilitator, synthesizer (does not vote)
-
-> **Held back for an `agentic-council-ee` spin-off:** Forge, Foundry, Accountant. Open an issue if you'd like that variant accelerated.
-
-## How it works
-
-1. **Phase 0 — Intake.** "What's the big idea?"
-2. **Phase 1 — Interview.** Steward asks 3–7 questions to disambiguate scope, constraints, success.
-3. **Phase 2 — Assembly.** Steward picks 5–9 council members based on the idea (Architect is always seated; Advocate, Skeptic, Guardian, Tuner get +2 mandatory bonuses for relevant domains).
-4. **Phase 3 — Deliberation.** Three rounds: Position → Challenge → Synthesis. Tension pairs are surfaced organically (e.g., Skeptic vs Strategist, Operator vs Tuner).
-5. **Phase 4 — Output.** Design doc, implementation plan, and an optional PRD ready to hand to `/ship` or `/looper`.
-
-Session artifacts live in your workspace at `.claude/council/sessions/<slug>/` — never inside the plugin.
+- **Steward** facilitator and synthesizer (does not vote)
 
 ## Skills bundled (59)
 
-Each council agent is paired with 2–4 first-class skills (e.g., `architect-schema-design`, `skeptic-threat-model`, `tuner-caching-strategy`, `guardian-compliance-review`). They're invokable directly as `/agentic-council:<skill-name>` or summoned by their parent agent during deliberation.
+Each council agent is paired with 2 to 4 first-class skills (e.g., `architect-schema-design`, `skeptic-threat-model`, `tuner-caching-strategy`, `guardian-compliance-review`). They load on demand during deliberation, or you can invoke them directly as `/agentic-council:<skill-name>`.
+
+## Engineering guardrails
+
+- `scripts/validate.py` runs 7 structural checks (manifest parsing, frontmatter completeness, roster cross-references, no hardcoded user paths, no held-back-dept leakage).
+- GitHub Actions CI runs the validator and `claude plugin validate` on every push and PR.
+- No telemetry, no network calls outside the agent runtime itself.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full local dev workflow.
 
 ## License
 
-Apache-2.0 — see [LICENSE](./LICENSE).
+Apache-2.0. See [LICENSE](./LICENSE).
 
 ## Cross-platform note
 
-v1.0.0 is Claude Code only — agent teams is currently a Claude Code primitive. SKILL.md and agent persona files use minimal, portable frontmatter to ease future Codex/Gemini support. See [PLATFORMS.md](./PLATFORMS.md).
+v1.0.0 is Claude Code only because agent teams is currently a Claude Code primitive. SKILL.md and agent persona files use minimal, portable frontmatter to ease future Codex and Gemini support. See [PLATFORMS.md](./PLATFORMS.md).
