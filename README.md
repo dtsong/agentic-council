@@ -1,8 +1,14 @@
 # agentic-council
 
-> A 20-agent council that interviews, debates, and produces an actionable build plan for your hardest engineering decisions.
+> Convene 20 specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plan, every decision tracked.
 
-Single-agent coding assistants give one perspective. Real engineering decisions need many: an architect reasoning about boundaries, a skeptic naming what could break, a tuner asking about cost at scale, a guardian flagging the privacy footprint. **agentic-council** stages that conversation. Twenty specialist personas convene around your prompt, post positions, debate, and converge on a build plan you can ship.
+## Why a council
+
+Hard engineering problems rarely have one right answer. The data model depends on the deployment story, the deployment story depends on the cost ceiling, the cost ceiling depends on what users will pay for. **agentic-council** brings in a roster of specialists to work the problem from every angle: an architect reasons about boundaries, a skeptic names what could break, a tuner argues about cost at scale, a guardian flags the privacy footprint. They post positions, challenge each other, and converge on a unified design. The Steward turns that design into a phased plan ready to hand to `/ship`.
+
+## Every decision is tracked
+
+Every phase writes to `.claude/council/sessions/<slug>/` as it happens: the interview, the assembled roster, each agent's position, every round of debate, the synthesis, and the final plan. Nothing is lost to a context window. Resume days later, list every council you've ever run, archive a session to a GitHub issue, or replay how a decision was reached when someone asks "why did we do it this way?".
 
 ## Install
 
