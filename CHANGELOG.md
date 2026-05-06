@@ -4,6 +4,23 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+### Roadmap notes
+
+- **v1.1 candidate:** expand the council with non-technical departments for product decisions where finance, HR, customer-success, and sales lenses matter. Dynamic assembly keeps engineering-only sessions unaffected. Design pass scheduled before implementation.
+
+## [1.0.1] - 2026-05-05
+
+### Added
+- `scout-enterprise-search-strategy` skill for structured internal-knowledge searches across wikis, ADRs, postmortems, ticket systems, and chat archives. Brings Scout to 4 skills (60 total bundled skills).
+- `PRIVACY.md` documenting the no-telemetry, no-network-egress posture.
+- GitHub repo topics, homepage, and description aligned with the canonical hook.
+
+### Changed
+- `plugin.json` and `marketplace.json` descriptions standardized on the marketplace-ready hook: "Convene 20 agentic specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plans, every decision tracked."
+- README rewritten to lead with the hook and surface persistence as a top-level value prop. Added "Example sessions" with three concrete walkthroughs.
+- Em-dashes swept from all user-facing docs for consistent prose.
+- `PLATFORMS.md` clarified that v1 is Claude Code only, with an honest assessment of why a Cowork port is not a clean adapter.
+
 ## [1.0.0] - 2026-05-04
 
 ### Added
@@ -23,5 +40,6 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 These will ship in a future `agentic-council-ee` spin-off plugin.
 
-[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.0

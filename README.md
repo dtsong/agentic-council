@@ -159,7 +159,7 @@ Run `/council --help` for the complete reference.
 **Maestro**
 - **Steward** facilitator and synthesizer (does not vote)
 
-## Skills bundled (59)
+## Skills bundled (60)
 
 Each council agent is paired with 2 to 4 first-class skills (e.g., `architect-schema-design`, `skeptic-threat-model`, `tuner-caching-strategy`, `guardian-compliance-review`). They load on demand during deliberation, or you can invoke them directly as `/agentic-council:<skill-name>`.
 

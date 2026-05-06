@@ -37,6 +37,7 @@ Each entry: `<department>` — list of `<dept>-<skill>` keys that resolve to `${
 - `scout-library-evaluation` — Structured library scoring + comparison
 - `scout-competitive-analysis` — Feature comparison matrix
 - `scout-technology-radar` — Technology maturity assessment
+- `scout-enterprise-search-strategy` — Internal-knowledge search plan + evidence brief
 
 ## strategist
 
