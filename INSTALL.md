@@ -44,10 +44,10 @@ Confirm `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is exported in the shell that l
 Each skill directory must contain a `SKILL.md`. Run `/plugin reload agentic-council` if you've upgraded.
 
 **Session artifacts in unexpected locations**
-Session state lives in your *workspace* `.claude/council/`, not the plugin root. If you don't see `.claude/council/sessions/<slug>/` after a run, the engine may have failed early — check the transcript output.
+Session state lives in your *workspace* `.claude/council/`, not the plugin root. If you don't see `.claude/council/sessions/<slug>/` after a run, the engine may have failed early. Check the transcript output.
 
 **Slash commands missing**
-Run `/plugin list` to confirm `agentic-council` is installed and active. If it shows but commands don't appear, the plugin namespace is `agentic-council:` — `/council` is exposed as a top-level alias.
+Run `/plugin list` to confirm `agentic-council` is installed and active. If it shows but commands don't appear, the plugin namespace is `agentic-council:` and `/council` is exposed as a top-level alias.
 
 ## Uninstall
 

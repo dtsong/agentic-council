@@ -1,6 +1,6 @@
 # agentic-council
 
-> Convene 20 specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plan, every decision tracked.
+> Convene 20 agentic specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plans, every decision tracked.
 
 ## Why a council
 
@@ -44,6 +44,32 @@ Each mode scales differently:
 | `--deep` | 5 to 9 | 3 + audit | Max rigor, ~1 hour |
 | `--meet` | 5 to 9 | 3 | Discussion only, no plan |
 | `--audit` | 4 to 6 | 1 | Adversarial codebase review |
+
+## Example sessions
+
+### 1. De-risk an ambitious feature before you build
+
+```
+/council "Add a tournament coach feature to our chess app"
+```
+
+The Strategist scopes the MVP, the Architect proposes the data model, the Tuner flags the LLM-call cost ceiling, the Skeptic names the failure modes, and the Advocate maps the user journey. After three rounds of debate, the Steward synthesizes a unified design and a phased build plan ready to hand to `/ship`. Every position, every round, and the final plan land in `.claude/council/sessions/<slug>/` so you can resume the work next week or archive the whole deliberation to a GitHub issue.
+
+### 2. Pressure-test a tradeoff with an auditable trail
+
+```
+/council --brainstorm "Should we migrate from Azure to AWS?"
+```
+
+Three agents (Operator, Tuner, Skeptic) post positions in parallel, the Steward synthesizes the tradeoffs, and you walk away with a one-page decision brief instead of a vibes-based commitment. Six months later when someone asks "why did we choose AWS?", the full deliberation is still on disk and in the git commit history. Replay every argument that led to the call.
+
+### 3. Adversarial audit of an existing system
+
+```
+/council --audit "Audit our authentication stack"
+```
+
+Cipher, Warden, Guardian, and Skeptic deliberate on cryptographic choices, privilege boundaries, compliance gaps, and attack surface. Output: a prioritized remediation list with clear owners, persisted alongside every other council session for cross-project pattern-spotting.
 
 ## How it works
 

@@ -4,7 +4,7 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
-## [1.0.0] — 2026-05-04
+## [1.0.0] - 2026-05-04
 
 ### Added
 - Initial release of agentic-council as a standalone Claude Code plugin.
@@ -17,9 +17,9 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 - Preflight check in the deliberation engine that detects missing `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and exits with a friendly install message.
 
 ### Held back from v1.0.0
-- **Forge** — microarchitecture, RTL security, physical-design security
-- **Foundry** — chip design flow, verification methodology, SoC integration
-- **Accountant** — accounting, tax, audit
+- **Forge** for microarchitecture, RTL security, physical-design security
+- **Foundry** for chip design flow, verification methodology, SoC integration
+- **Accountant** for accounting, tax, audit
 
 These will ship in a future `agentic-council-ee` spin-off plugin.
 

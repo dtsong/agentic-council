@@ -1,6 +1,6 @@
 {
   "name": "agentic-council",
-  "description": "Multi-agent design workflow — interview-first, dynamically-assembled council of 20 specialist agents that deliberate, debate, and produce an actionable build plan.",
+  "description": "Convene 20 agentic specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plans, every decision tracked.",
   "author": {
     "name": "Daniel Song",
     "email": "xdtsong@gmail.com"

@@ -50,7 +50,7 @@ This checks the marketplace manifest schema against Anthropic's published schema
 
 1. Create `skills/<dept>-<skill>/SKILL.md` with `name` + `description` frontmatter.
 2. Add a bullet for it under the matching `## <dept>` section in `references/department-index.md`.
-3. Run `python3 scripts/validate.py` — it will fail if the index is out of sync.
+3. Run `python3 scripts/validate.py`. It will fail if the index is out of sync.
 4. Commit and open a PR.
 
 ## Adding or modifying an agent
