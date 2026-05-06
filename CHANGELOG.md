@@ -4,9 +4,26 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
-### Roadmap notes
+## [1.1.0] - 2026-05-06
 
-- **v1.1 candidate:** expand the council with non-technical departments for product decisions where finance, HR, customer-success, and sales lenses matter. Dynamic assembly keeps engineering-only sessions unaffected. Design pass scheduled before implementation.
+### Added
+- **Sibling councils** for non-engineering knowledge work, each with its own slash command, conductor, roster, and session directory:
+  - `/finance-council` — Comptroller conducting Controller, Tax, FP&A, Treasurer, Auditor, Capital, RegRep (7 specialists).
+  - `/people-council` — Chair conducting Talent, PeoplePartner, TotalRewards, LearnDev, DEI, PeopleOps (6 specialists).
+  - `/revenue-council` — Quartermaster conducting AE and SDR (2 specialists; 5 more tracked for v1.2).
+- **6 finance skills:** `finance-reconciliation`, `finance-journal-entries`, `finance-close-checklist`, `finance-tax-research`, `finance-controls-audit`, `finance-variance-analysis`. People and revenue skills tracked for v1.2.
+- **`references/positioning-charter.md`** codifying frozen surfaces (engineering elevator pitch, `/council` roster, Steward as sole Maestro) and sibling-council isolation rules.
+- **`references/cross-council-handoff.md`** defining the structured handoff protocol when a session surfaces a question outside its council's domain. Mixed-roster sessions remain prohibited.
+- Engine variable `$ACTION_PATHS` so themes can declare non-engineering Phase 5 outputs (memos, JE packages, account plans) without disturbing Path A team execution.
+- Finance council departments added to `references/department-index.md`.
+
+### Changed
+- `plugin.json` and `marketplace.json` descriptions append a sibling-council acknowledgment after the unchanged engineering elevator pitch.
+
+### Unchanged (per positioning charter)
+- `/council`'s 19 specialists + Steward roster.
+- `/council` and `/brainstorm` behavior, modes, and theme variables.
+- README hierarchy (engineering-first lead, "Why", agent overview).
 
 ## [1.0.1] - 2026-05-05
 
@@ -40,6 +57,7 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 These will ship in a future `agentic-council-ee` spin-off plugin.
 
-[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.1.0
 [1.0.1]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.0

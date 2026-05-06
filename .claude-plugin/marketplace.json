@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "agentic-council",
-      "description": "Convene 20 agentic specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plans, every decision tracked.",
+      "description": "Convene 20 agentic specialists on your hardest engineering problems. Distinct perspectives, unified design, actionable plans, every decision tracked. Ships sibling councils for finance, people, and revenue under their own slash commands.",
       "author": {
         "name": "Daniel Song",
         "email": "xdtsong@gmail.com"

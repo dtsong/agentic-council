@@ -25,6 +25,7 @@ Each themed command file must define these variables before referencing this eng
 | `$PHASE_LABELS` | Themed labels for each phase | *(see council.md)* |
 | `$ASSEMBLY_LABEL` | Header for the assembly table | "Council Assembly — Agent Selection" |
 | `$EXTRA_MECHANICS` | Theme-specific mechanics to execute during workflow | *(none for council)* |
+| `$ACTION_PATHS` | Phase 5 action paths the theme supports (in addition to Path A team execution) | *(see council.md — Paths B–F)* |
 
 ---
 
@@ -1097,6 +1098,8 @@ Update `$SESSION_DIR/session.md` phase to `action`.
 ---
 
 ## Phase 5: Action
+
+The path catalog below is the engineering theme's default. Themed variants may declare additional or alternative paths via `$ACTION_PATHS` (e.g., a finance theme may emit a memo + journal-entries package instead of GitHub issues). Path A (team execution) is the only mandatory path; all others are theme-opt-in.
 
 ### Path A: Team Execution
 

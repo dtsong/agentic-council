@@ -123,6 +123,50 @@ Each entry: `<department>` — list of `<dept>-<skill>` keys that resolve to `${
 - `prover-formal-spec` — TLA+ specification + model checking
 - `prover-invariant-analysis` — Security invariant identification
 
+---
+
+# Finance Council Departments (v1.1)
+
+The departments below belong to `/finance-council`, not `/council`. The engine routes them only when a finance-council session is active. They never participate in `/council` assemblies. See `references/positioning-charter.md` §"Sibling Council Rules" rule 4 for the isolation guarantee.
+
+## finance-controller
+
+- `finance-reconciliation` — Account reconciliation with sub-ledger ties + exception triage
+- `finance-journal-entries` — GAAP/IFRS journal entry preparation
+- `finance-close-checklist` — Monthly/quarterly close orchestration
+
+## finance-tax
+
+- `finance-tax-research` — Federal/state/intl tax research memo
+- `finance-provision` — Income tax provision (ASC 740) workpaper *(planned — v1.2)*
+
+## finance-fpa
+
+- `finance-variance-analysis` — Variance analysis + commentary
+- `finance-forecast-update` — Forecast revision with scenario modeling *(planned — v1.2)*
+
+## finance-treasurer
+
+- `finance-cash-forecast` — Direct-method cash forecast *(planned — v1.2)*
+- `finance-hedging-proposal` — FX/IR hedging proposal with effectiveness testing *(planned — v1.2)*
+
+## finance-auditor
+
+- `finance-controls-audit` — SOX 404 controls testing
+- `finance-evidence-package` — Audit-ready evidence package *(planned — v1.2)*
+
+## finance-capital
+
+- `finance-capital-allocation` — Capital allocation model *(planned — v1.2)*
+- `finance-investor-letter` — Investor letter draft *(planned — v1.2)*
+
+## finance-regrep
+
+- `finance-disclosure-language` — SEC disclosure language draft *(planned — v1.2)*
+- `finance-segment-reporting` — Segment reporting under ASC 280 / IFRS 8 *(planned — v1.2)*
+
+---
+
 ## Held back from v1.0.0
 
 The following departments are parked for an `agentic-council-ee` spin-off plugin and are NOT bundled. The engine should ignore selections targeting these:
