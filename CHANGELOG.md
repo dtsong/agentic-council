@@ -4,6 +4,16 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-05-06
+
+### Changed
+- `plugin.json` and `marketplace.json` now carry an explicit `version` field. Without it, every commit on `main` would register as a new "version" for installed users. With explicit versioning, updates land only when this field bumps. Required ahead of an Anthropic plugin directory submission.
+- `scripts/validate.py` extended to recognize `finance-`, `people-`, and `revenue-` prefixes for skills and agents shipped under sibling councils. Engineering-only roster checks remain in place for `/council`. v1.1.0's CI broke against the v1.0.x validator; this restores green CI.
+- `scripts/validate.py` now enforces that `plugin.json` and `marketplace.json` carry matching, semver-shaped `version` fields. Catches the gap that prompted this patch from regressing.
+
+### Removed
+- Empty placeholder directory `skills/people-job-description/` (scaffolded in v1.1.0 but no SKILL.md was ever shipped — actual people skills are tracked for v1.2).
+
 ## [1.1.0] - 2026-05-06
 
 ### Added
@@ -57,7 +67,8 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 These will ship in a future `agentic-council-ee` spin-off plugin.
 
-[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/dtsong/agentic-council/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/dtsong/agentic-council/releases/tag/v1.1.1
 [1.1.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.1.0
 [1.0.1]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dtsong/agentic-council/releases/tag/v1.0.0

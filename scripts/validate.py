@@ -25,12 +25,16 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 
 HELD_BACK_DEPTS = {"forge", "foundry", "accountant"}
-EXPECTED_DEPTS = {
+ENGINEERING_DEPTS = {
     "architect", "skeptic", "advocate", "craftsman", "scout",
     "strategist", "operator", "chronicler", "guardian", "tuner",
     "alchemist", "pathfinder", "artisan", "herald", "sentinel",
     "oracle", "cipher", "warden", "prover",
 }
+SIBLING_PREFIXES = {"finance", "people", "revenue"}
+VALID_SKILL_PREFIXES = ENGINEERING_DEPTS | SIBLING_PREFIXES
+VALID_AGENT_PREFIXES = {"council"} | SIBLING_PREFIXES
+EXPECTED_DEPTS = ENGINEERING_DEPTS
 USER_PATH_PATTERNS = [
     re.compile(r"/Users/[a-zA-Z][a-zA-Z0-9_-]*"),
     re.compile(r"/home/[a-zA-Z][a-zA-Z0-9_-]*"),
@@ -85,9 +89,21 @@ def check_manifests(report: Report) -> None:
         market = json.loads(market_path.read_text(encoding="utf-8"))
         if plugin.get("name") != "agentic-council":
             report.err(f"plugin.json name must be 'agentic-council', got {plugin.get('name')!r}")
+        plugin_version = plugin.get("version")
+        if not plugin_version:
+            report.err("plugin.json missing required 'version' field (without it, every commit becomes a new version for users)")
+        elif not re.fullmatch(r"\d+\.\d+\.\d+", plugin_version):
+            report.err(f"plugin.json version must be semver MAJOR.MINOR.PATCH, got {plugin_version!r}")
         plugin_entries = market.get("plugins", [])
-        if not any(p.get("name") == "agentic-council" for p in plugin_entries):
+        market_entry = next((p for p in plugin_entries if p.get("name") == "agentic-council"), None)
+        if market_entry is None:
             report.err("marketplace.json must list 'agentic-council' in plugins[]")
+        else:
+            market_version = market_entry.get("version")
+            if not market_version:
+                report.err("marketplace.json plugin entry missing 'version' field")
+            elif plugin_version and market_version != plugin_version:
+                report.err(f"plugin.json version {plugin_version!r} disagrees with marketplace.json version {market_version!r}")
 
 
 def check_skills(report: Report) -> set[str]:
@@ -108,9 +124,9 @@ def check_skills(report: Report) -> set[str]:
 
         dept = name.split("-", 1)[0]
         if dept in HELD_BACK_DEPTS:
-            report.err(f"Held-back department leak: skills/{name}/ should not be in v1.0.0")
+            report.err(f"Held-back department leak: skills/{name}/ should not be shipped")
             continue
-        if dept not in EXPECTED_DEPTS:
+        if dept not in VALID_SKILL_PREFIXES:
             report.err(f"Unknown department prefix in skills/{name}/")
 
         fm = parse_frontmatter(skill_md)
@@ -136,12 +152,16 @@ def check_agents(report: Report) -> set[str]:
         report.err("agents/ directory missing")
         return found
 
-    for agent_md in sorted(agents_dir.glob("council-*.md")):
-        stem = agent_md.stem  # e.g. council-architect
-        dept = stem.removeprefix("council-")
-        if dept in HELD_BACK_DEPTS:
-            report.err(f"Held-back agent leak: agents/{agent_md.name} should not be in v1.0.0")
+    for agent_md in sorted(agents_dir.glob("*.md")):
+        stem = agent_md.stem
+        prefix = stem.split("-", 1)[0]
+        if prefix not in VALID_AGENT_PREFIXES:
             continue
+        if prefix == "council":
+            dept = stem.removeprefix("council-")
+            if dept in HELD_BACK_DEPTS:
+                report.err(f"Held-back agent leak: agents/{agent_md.name} should not be shipped")
+                continue
         fm = parse_frontmatter(agent_md)
         if fm is None:
             report.err(f"agents/{agent_md.name} missing YAML frontmatter")
@@ -151,10 +171,10 @@ def check_agents(report: Report) -> set[str]:
                 report.err(f"agents/{agent_md.name} missing frontmatter field: {required}")
         found.add(stem)
 
-    expected_agents = {f"council-{d}" for d in EXPECTED_DEPTS} | {"council-steward"}
-    missing = expected_agents - found
-    if missing:
-        report.err(f"Missing expected agent files: {sorted(missing)}")
+    expected_engineering = {f"council-{d}" for d in ENGINEERING_DEPTS} | {"council-steward"}
+    missing_engineering = expected_engineering - found
+    if missing_engineering:
+        report.err(f"Missing expected engineering agent files: {sorted(missing_engineering)}")
 
     return found
 
@@ -166,10 +186,19 @@ def check_department_index(report: Report, skill_names: set[str]) -> None:
         return
     text = index_path.read_text(encoding="utf-8")
 
+    all_known_prefixes = VALID_SKILL_PREFIXES | HELD_BACK_DEPTS
     referenced: set[str] = set()
-    for match in re.finditer(r"`([a-z]+-[a-z0-9-]+)`", text):
+    planned: set[str] = set()
+    for match in re.finditer(r"`([a-z]+-[a-z0-9-]+)`(?:\s*\*?\(planned[^)]*\)\*?)?", text):
         token = match.group(1)
-        if token.startswith(tuple(f"{d}-" for d in EXPECTED_DEPTS | HELD_BACK_DEPTS)):
+        if not token.startswith(tuple(f"{d}-" for d in all_known_prefixes)):
+            continue
+        # Tokens marked as "planned" in the text don't have to exist on disk yet.
+        match_end = match.end()
+        trailing = text[match_end:match_end + 80]
+        if "planned" in trailing.split("\n", 1)[0].lower():
+            planned.add(token)
+        else:
             referenced.add(token)
 
     for name in referenced:
@@ -183,7 +212,7 @@ def check_department_index(report: Report, skill_names: set[str]) -> None:
         section = dept_header.group(1)
         if section in HELD_BACK_DEPTS or section == "held back from v1.0.0":
             continue
-        if section in EXPECTED_DEPTS:
+        if section in ENGINEERING_DEPTS:
             section_skills = {n for n in referenced if n.startswith(f"{section}-")}
             actual = {n for n in skill_names if n.startswith(f"{section}-")}
             if section_skills != actual:
