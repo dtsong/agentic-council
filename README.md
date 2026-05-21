@@ -79,6 +79,57 @@ Cipher, Warden, Guardian, and Skeptic deliberate on cryptographic choices, privi
 4. **Deliberation.** Three rounds: Position, Challenge, Synthesis. Tension pairs surface organically (Skeptic vs Strategist, Operator vs Tuner).
 5. **Output.** Design doc, implementation plan, and an optional PRD ready to hand to `/ship`.
 
+```mermaid
+flowchart TD
+    classDef userNode    fill:#1b4332,color:#d8f3dc,stroke:#2d6a4f,stroke-width:1px
+    classDef artifactNode fill:#1c3461,color:#dbe4ff,stroke:#364fc7,stroke-width:1px
+    classDef actionNode  fill:#3b1f2b,color:#fcc2d7,stroke:#9c36b5,stroke-width:1px
+    classDef phaseNode   fill:#2b2b2b,color:#f1f3f5,stroke:#495057,stroke-width:1px
+
+    START(["💡 Your idea"]):::actionNode
+
+    subgraph P0["⓪  Intake"]
+        p0u[/"👤 'What's the big idea?'"/]:::userNode
+    end
+
+    subgraph P1["①  Interview  ·  3–7 questions"]
+        p1p["Steward scans your codebase, asks targeted questions"]:::phaseNode
+        p1u[/"👤 Answer scope, constraints, success criteria"/]:::userNode
+        p1a[("📄 interview.md")]:::artifactNode
+        p1p --> p1u --> p1a
+    end
+
+    subgraph P2["②  Assembly  ·  5–9 agents"]
+        p2p["20 agents scored by relevance · Architect always seated"]:::phaseNode
+        p2u[/"👤 Approve, add, or remove agents"/]:::userNode
+        p2a[("📄 assembly.md")]:::artifactNode
+        p2p --> p2u --> p2a
+    end
+
+    subgraph P3["③  Deliberation  ·  3 rounds"]
+        p3r1["Round 1 · Position — agents explore code, post independently"]:::phaseNode
+        p3r2["Round 2 · Challenge — tension pairs rebut each other"]:::phaseNode
+        p3r3["Round 3 · Synthesis — agents reconcile and finalize"]:::phaseNode
+        p3a[("📄 round-1.md  ·  round-2.md  ·  round-3.md")]:::artifactNode
+        p3r1 --> p3r2 --> p3r3 --> p3a
+    end
+
+    subgraph P4["④  Output"]
+        p4p["Steward synthesizes design, plan, and optional PRD"]:::phaseNode
+        p4u[/"👤 Scope review before handoff"/]:::userNode
+        p4a[("📄 design.md  ·  plan.md")]:::artifactNode
+        p4p --> p4u --> p4a
+    end
+
+    subgraph P5["⑤  Handoff"]
+        p5s["🚀 /ship — implement, review, fix, PR"]:::actionNode
+        p5d["🔍 /deepen — architecture review"]:::actionNode
+        p5h["💾 /handover — save session knowledge"]:::actionNode
+    end
+
+    START --> P0 --> P1 --> P2 --> P3 --> P4 --> P5
+```
+
 ## Persistence and context handoff
 
 Every session writes to `.claude/council/sessions/<slug>/` in your workspace, capturing each phase as a discrete artifact:
