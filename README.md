@@ -49,21 +49,17 @@ Add `--profile lean|balanced|max` to any mode to control model spend — see the
 
 ## Cost guide
 
-The council spawns real agents, so sessions have real token costs. The `--profile` flag routes each spawn site to a model tier; the conductor (interview, synthesis, PRD) always runs on *your* session model (`/model`).
+The council spawns real agents, so sessions have real token costs. `--profile` routes each spawn site to a model tier:
 
-| Spawn site | `lean` | `balanced` (default) | `max` |
-|---|---|---|---|
-| Positions & converge (R1/R3) | Sonnet | Opus | Opus |
-| Challenge round (R2) | Opus one-shots | persistent agents | Fable one-shots |
-| Audit agents | Sonnet | Sonnet | Opus |
+| Profile | For | What it does |
+|---|---|---|
+| `lean` | API-billed / enterprise, token-conscious | Sonnet positions & converge; Opus one-shots only for the Round 2 challenges (where debate quality pays most) |
+| `balanced` (default) | Daily use | Opus deliberation, Sonnet audits |
+| `max` | Claude Max subscribers chasing ceiling quality | Opus everywhere, Fable challenge agents; rate-limit-bound, not dollar-bound |
 
-Estimated total tokens (5-agent standard session): **lean** ~80–120K · **balanced** ~120–180K · **max** ~180–270K. Brainstorm is ~10–15K in every profile. The engine prints an estimate at the roster-approval gate before anything spawns.
+A 5-agent standard session runs ~80–120K tokens on `lean`, ~120–180K on `balanced`, ~180–270K on `max`; brainstorm is ~10–15K everywhere. The engine prints an estimate at the roster-approval gate before anything spawns, and the conductor (interview, synthesis, PRD) always runs on *your* `/model` — set it to opus or fable before a big session for the single biggest quality lift.
 
-**If you're API-billed (enterprise agreement, token-conscious):** run `--profile lean`. Positions and convergence run on Sonnet 4.6 ($3/$15 per MTok), and Opus is spent only where debate quality pays most — the adversarial challenge round. A Sonnet conductor is acceptable; expect a flatter design doc. Indicative pricing (June 2026): Sonnet 4.6 $3/$15, Opus 4.8 $5/$25, Fable 5 $10/$50 per MTok in/out — check current pricing before budgeting.
-
-**If you're on a Claude Max plan ($100–200/mo):** there's no per-token dollar cost — sessions draw on your plan's rate limits. Run `--profile max` with `/model opus` (or fable) before a standard/deep session: synthesis and the design doc are conductor work and benefit most from the stronger model, and Fable-powered challenge rounds are where ceiling quality shows. Deep mode + max profile burns limits fastest; balanced is the sane default for daily use.
-
-Workflow-backed deliberation also typically costs less than the old teams backend for the same session — workflow agents are lightweight subagents, while each teammate was a full Claude Code session loading CLAUDE.md, MCP servers, and skills.
+Full playbooks for both billing models: **[Cost guide](https://dtsong.github.io/agentic-council/COST-GUIDE/)** ([source](./docs/COST-GUIDE.md)).
 
 ## Example sessions
 
@@ -233,6 +229,18 @@ Run `/council --help` for the complete reference.
 ## Skills bundled (60)
 
 Each council agent is paired with 2 to 4 first-class skills (e.g., `architect-schema-design`, `skeptic-threat-model`, `tuner-caching-strategy`, `guardian-compliance-review`). They load on demand during deliberation, or you can invoke them directly as `/agentic-council:<skill-name>`.
+
+## Documentation
+
+Browseable docs with search and navigation at **[dtsong.github.io/agentic-council](https://dtsong.github.io/agentic-council/)**, or read in-repo:
+
+| Guide | What's in it |
+|---|---|
+| [Usage](./docs/USAGE.md) | Session anatomy, all 8 modes, flags, action paths, lifecycle, artifacts |
+| [Councils](./docs/COUNCILS.md) | All four councils: rosters, conductors, theme outputs, handoffs |
+| [Cost guide](./docs/COST-GUIDE.md) | Profiles, token estimates, API-billed vs Max-plan playbooks |
+| [Orchestration](./docs/ORCHESTRATION.md) | Workflow / teams / sequential backends and degradation |
+| [Architecture eval](./docs/ARCHITECTURE-EVAL.md) | The design record behind v1.2 |
 
 ## Engineering guardrails
 

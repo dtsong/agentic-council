@@ -1,3 +1,5 @@
+[Docs home](./index.md) · [Usage](./USAGE.md) · [Councils](./COUNCILS.md) · [Cost guide](./COST-GUIDE.md) · [Orchestration](./ORCHESTRATION.md) · **Architecture eval**
+
 # Architecture Evaluation — v1.1 → v1.2
 
 *June 2026. The design record behind the v1.2.0 changes: cost profiles, model un-pinning, and workflow-first orchestration.*

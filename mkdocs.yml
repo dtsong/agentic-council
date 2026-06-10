@@ -1,0 +1,50 @@
+site_name: agentic-council
+site_description: Multi-agent deliberation councils for Claude Code — distinct perspectives, unified design, every decision tracked.
+site_url: https://dtsong.github.io/agentic-council/
+repo_url: https://github.com/dtsong/agentic-council
+repo_name: dtsong/agentic-council
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+
+nav:
+  - Home: index.md
+  - Usage: USAGE.md
+  - Councils: COUNCILS.md
+  - Cost guide: COST-GUIDE.md
+  - Orchestration: ORCHESTRATION.md
+  - Architecture eval: ARCHITECTURE-EVAL.md
+  - Install: https://github.com/dtsong/agentic-council/blob/main/INSTALL.md
+  - Changelog: https://github.com/dtsong/agentic-council/blob/main/CHANGELOG.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - toc:
+      permalink: true
