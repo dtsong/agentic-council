@@ -4,6 +4,28 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-10
+
+### Added
+- **Cost profiles** — `--profile lean|balanced|max` on every council command, with a per-theme `DEFAULT_PROFILE` variable. Models are routed by spawn site: lean runs positions/converge on Sonnet with fresh Opus one-shots for Round 2 challenges; max upgrades challenges to Fable. Profile persists in `session.md`/`index.json` and survives `--resume`.
+- **Cost transparency** — the roster-approval gate now shows an estimated token range (mode × profile, scaled by agent count) and echoes the conductor's current `/model`. Quick/auto modes print a non-blocking one-liner.
+- **Workflow-backed deliberation** — standard/auto/deep/guided deliberation runs as a background dynamic workflow (`references/workflows/council-deliberation.template.js`): parallel positions, a tension-pairing judge, paired challenges, convergence, and synthesis, with round texts kept out of the conductor's context and only the structured Decision Log/Tension Resolutions returned. Guided mode splits into two invocations at the positions gate.
+- **Workflow-backed deep audit** — Phase 5D/`--audit` runs as `references/workflows/council-audit.template.js`: zone waves, gap-detection judge between passes, loop-until-convergence with a hard token budget; replaces the conductor checkpoint/respawn machinery on this path. On-disk audit artifacts unchanged.
+- **`docs/ARCHITECTURE-EVAL.md`** — the design record: v1.1 strengths/gaps, the enterprise vs Max cost personas, and the per-phase workflows-vs-teams rationale.
+- **README Cost guide** — profile table, token estimates, and persona guidance (API-billed lean vs Max-plan max).
+- `scripts/validate.py`: agent `model` frontmatter must be a tier alias or `inherit` (pinned `claude-*` IDs are errors); workflow templates referenced by the engine must exist and carry `export const meta`.
+
+### Changed
+- **The experimental agent-teams flag is no longer required.** The engine's hard-exit preflight is replaced by an orchestration capability check that resolves a backend per mode (workflow → teams → sequential) and never exits. `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is now optional, unlocking `--meet` live steering and Path A team execution; both degrade gracefully without it.
+- All 38 agent files: `model: "claude-opus-4-6"` (two generations stale) → `model: inherit`. The engine passes an explicit tier alias on every spawn per the routing table, so agents track the latest models and respect the session profile.
+- Quick mode runs as inline parallel Task calls (no team, no workflow). Brainstorm's hardcoded sonnet now references the routing table (same value).
+- Mode table gains Backend and Budget columns; INSTALL.md requirements lead with Claude Code ≥ 2.1.154 + dynamic workflows; README fixes the 5–9 vs 3–7 agent-count inconsistency.
+- Cleanup only sends teammate shutdown/`TeamDelete` on the teams backend.
+
+### Unchanged (per positioning charter)
+- `/council`'s 19 specialists + Steward roster, all agent personas, all skills.
+- Session directory layout, index/registry schemas, resume slugs, archive format. Pre-v1.2 sessions resume as `balanced` profile with backend re-detected.
+
 ## [1.1.1] - 2026-05-06
 
 ### Changed

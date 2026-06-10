@@ -32,6 +32,9 @@ ENGINEERING_DEPTS = {
     "oracle", "cipher", "warden", "prover",
 }
 SIBLING_PREFIXES = {"finance", "people", "revenue"}
+# Tier aliases track the latest model of each tier; pinned claude-* IDs go stale.
+VALID_AGENT_MODELS = {"inherit", "sonnet", "opus", "haiku", "fable"}
+WORKFLOW_TEMPLATES = {"council-deliberation.template.js", "council-audit.template.js"}
 VALID_SKILL_PREFIXES = ENGINEERING_DEPTS | SIBLING_PREFIXES
 VALID_AGENT_PREFIXES = {"council"} | SIBLING_PREFIXES
 EXPECTED_DEPTS = ENGINEERING_DEPTS
@@ -169,6 +172,18 @@ def check_agents(report: Report) -> set[str]:
         for required in ("name", "description"):
             if not fm.get(required):
                 report.err(f"agents/{agent_md.name} missing frontmatter field: {required}")
+        model = fm.get("model")
+        if model is not None and model not in VALID_AGENT_MODELS:
+            if isinstance(model, str) and model.startswith("claude-"):
+                report.err(
+                    f"agents/{agent_md.name}: pinned model ID {model!r} will go stale — "
+                    f"use a tier alias or inherit ({sorted(VALID_AGENT_MODELS)})"
+                )
+            else:
+                report.err(
+                    f"agents/{agent_md.name}: invalid model {model!r} — "
+                    f"must be one of {sorted(VALID_AGENT_MODELS)} or omitted"
+                )
         found.add(stem)
 
     expected_engineering = {f"council-{d}" for d in ENGINEERING_DEPTS} | {"council-steward"}
@@ -275,6 +290,20 @@ def check_no_stale_skill_paths(report: Report) -> None:
                 report.err(f"{rel}: stale path reference {m.group(0)!r} (use ${{CLAUDE_PLUGIN_ROOT}} or department-index.md)")
 
 
+def check_workflow_templates(report: Report) -> None:
+    engine = ROOT / "commands" / "_council-engine.md"
+    engine_text = engine.read_text(encoding="utf-8") if engine.exists() else ""
+    for name in sorted(WORKFLOW_TEMPLATES):
+        path = ROOT / "references" / "workflows" / name
+        referenced = f"references/workflows/{name}" in engine_text
+        if referenced and not path.exists():
+            report.err(f"engine references references/workflows/{name} but the file is missing")
+        if path.exists():
+            text = path.read_text(encoding="utf-8")
+            if "export const meta" not in text:
+                report.err(f"references/workflows/{name}: missing `export const meta` block")
+
+
 def main() -> int:
     report = Report()
     print(f"Validating plugin at {ROOT}\n")
@@ -284,6 +313,7 @@ def main() -> int:
     agents = check_agents(report)
     check_department_index(report, skills)
     check_council_roster(report, agents)
+    check_workflow_templates(report)
     check_no_user_paths(report)
     check_no_stale_skill_paths(report)
 

@@ -17,13 +17,13 @@ Every phase writes to `.claude/council/sessions/<slug>/` as it happens: the inte
 /plugin install agentic-council
 ```
 
-Then enable the agent-teams runtime that the council requires:
+That's it for the core flow. As of v1.2.0 the council deliberates via Claude Code's **dynamic workflows** runtime (Claude Code ≥ 2.1.154, available on all paid plans) — the experimental agent-teams flag is **no longer required**. Optionally enable it to unlock live panel steering in `--meet` and team-based execution in Path A:
 
 ```bash
-export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1   # optional
 ```
 
-See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. The `/council` engine has a preflight check that prints this instruction if the flag is missing.
+See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. Without either runtime the engine degrades to sequential agent calls — slower, same artifacts.
 
 ## Quick start
 
@@ -36,14 +36,34 @@ See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. The
 
 Each mode scales differently:
 
-| Mode | Agents | Rounds | Use when |
+| Mode | Agents | Rounds | Backend | Use when |
+|---|---|---|---|---|
+| `--brainstorm` | 3 | 1 | inline | Gut check, pre-decision ideation |
+| `--quick` | 3 | 1 | inline | You know roughly what you want |
+| (default) | 3 to 7 | 3 | workflow | Ambitious feature, full deliberation |
+| `--deep` | 3 to 7 | 3 + audit | workflow | Max rigor, ~1 hour |
+| `--meet` | 3 to 7 | cross-exam | teams | Discussion only, no plan |
+| `--audit` | 3 to 5 | passes | workflow | Adversarial codebase review |
+
+Add `--profile lean|balanced|max` to any mode to control model spend — see the [Cost guide](#cost-guide).
+
+## Cost guide
+
+The council spawns real agents, so sessions have real token costs. The `--profile` flag routes each spawn site to a model tier; the conductor (interview, synthesis, PRD) always runs on *your* session model (`/model`).
+
+| Spawn site | `lean` | `balanced` (default) | `max` |
 |---|---|---|---|
-| `--brainstorm` | 3 | 1 | Gut check, pre-decision ideation |
-| `--quick` | 5 | 1 | You know roughly what you want |
-| (default) | 5 to 9 | 3 | Ambitious feature, full deliberation |
-| `--deep` | 5 to 9 | 3 + audit | Max rigor, ~1 hour |
-| `--meet` | 5 to 9 | 3 | Discussion only, no plan |
-| `--audit` | 4 to 6 | 1 | Adversarial codebase review |
+| Positions & converge (R1/R3) | Sonnet | Opus | Opus |
+| Challenge round (R2) | Opus one-shots | persistent agents | Fable one-shots |
+| Audit agents | Sonnet | Sonnet | Opus |
+
+Estimated total tokens (5-agent standard session): **lean** ~80–120K · **balanced** ~120–180K · **max** ~180–270K. Brainstorm is ~10–15K in every profile. The engine prints an estimate at the roster-approval gate before anything spawns.
+
+**If you're API-billed (enterprise agreement, token-conscious):** run `--profile lean`. Positions and convergence run on Sonnet 4.6 ($3/$15 per MTok), and Opus is spent only where debate quality pays most — the adversarial challenge round. A Sonnet conductor is acceptable; expect a flatter design doc. Indicative pricing (June 2026): Sonnet 4.6 $3/$15, Opus 4.8 $5/$25, Fable 5 $10/$50 per MTok in/out — check current pricing before budgeting.
+
+**If you're on a Claude Max plan ($100–200/mo):** there's no per-token dollar cost — sessions draw on your plan's rate limits. Run `--profile max` with `/model opus` (or fable) before a standard/deep session: synthesis and the design doc are conductor work and benefit most from the stronger model, and Fable-powered challenge rounds are where ceiling quality shows. Deep mode + max profile burns limits fastest; balanced is the sane default for daily use.
+
+Workflow-backed deliberation also typically costs less than the old teams backend for the same session — workflow agents are lightweight subagents, while each teammate was a full Claude Code session loading CLAUDE.md, MCP servers, and skills.
 
 ## Example sessions
 
@@ -75,8 +95,8 @@ Cipher, Warden, Guardian, and Skeptic deliberate on cryptographic choices, privi
 
 1. **Intake.** "What's the big idea?"
 2. **Interview.** Steward asks 3 to 7 questions to disambiguate scope, constraints, and success.
-3. **Assembly.** Steward picks 5 to 9 council members based on the topic. Architect is always seated; Advocate, Skeptic, Guardian, and Tuner get bonus weight for relevant domains.
-4. **Deliberation.** Three rounds: Position, Challenge, Synthesis. Tension pairs surface organically (Skeptic vs Strategist, Operator vs Tuner).
+3. **Assembly.** Steward picks 3 to 7 council members based on the topic. Architect is always seated; Advocate, Skeptic, Guardian, and Tuner get bonus weight for relevant domains. You approve the roster — and see a token estimate — before anything spawns.
+4. **Deliberation.** Three rounds run as a background workflow: Position, Challenge, Synthesis. Tension pairs surface organically (Skeptic vs Strategist, Operator vs Tuner). Round texts stay on disk and out of your session's context.
 5. **Output.** Design doc, implementation plan, and an optional PRD ready to hand to `/ship`.
 
 ```mermaid
@@ -228,4 +248,4 @@ Apache-2.0. See [LICENSE](./LICENSE).
 
 ## Cross-platform note
 
-v1.0.0 is Claude Code only because agent teams is currently a Claude Code primitive. SKILL.md and agent persona files use minimal, portable frontmatter to ease future Codex and Gemini support. See [PLATFORMS.md](./PLATFORMS.md).
+agentic-council is Claude Code only: deliberation runs on Claude Code's dynamic-workflows runtime (with agent teams as an optional enhancement), both Claude Code primitives. SKILL.md and agent persona files use minimal, portable frontmatter to ease future Codex and Gemini support. See [PLATFORMS.md](./PLATFORMS.md).

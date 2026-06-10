@@ -48,6 +48,7 @@ GLOBAL_REGISTRY_PATH:   ~/.claude/council/global-registry.json
 INDEX_PATH:             .claude/council/index.json
 CHALLENGE_RULES:        organic
 EXTRA_MECHANICS:        (none)
+DEFAULT_PROFILE:        balanced
 ```
 
 ### Phase Labels

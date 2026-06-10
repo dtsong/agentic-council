@@ -42,6 +42,7 @@ GLOBAL_REGISTRY_PATH:   ~/.claude/finance-council/global-registry.json
 INDEX_PATH:             .claude/finance-council/index.json
 CHALLENGE_RULES:        organic
 EXTRA_MECHANICS:        (none)
+DEFAULT_PROFILE:        balanced
 ACTION_PATHS:           A (team execution), G (memo + journal-entries package), H (FP&A handoff)
 ```
 

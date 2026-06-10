@@ -7,17 +7,24 @@
 /plugin install agentic-council
 ```
 
-## 2. Enable the agent-teams runtime
+## 2. Requirements
 
-The council spawns each member as a separate teammate with its own context window. This requires the experimental agent-teams flag:
+**Claude Code ≥ 2.1.154 with dynamic workflows available.** Deliberation runs as a background workflow — available by default on Max, Team, and Enterprise plans; on Pro, turn on **Dynamic workflows** in `/config`. If your org disables workflows (`disableWorkflows` in managed settings), the engine degrades to agent teams (if enabled below) or sequential agent calls.
+
+Check your version with `claude --version`. See the [Cost guide](./README.md#cost-guide) for choosing a `--profile` before your first full session.
+
+## 2b. Optional: enable the agent-teams runtime
+
+Agent teams are **experimental** and no longer required for the core `/council` flow. Enabling them unlocks:
+
+- `--meet` live steering — message individual panelists mid-discussion (Shift+Down)
+- Path A team execution — shared task list with dependency unblocking and per-task plan approval
 
 ```bash
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 ```
 
-Add this to your shell profile (`~/.zshrc`, `~/.bash_profile`, etc.) so it persists across sessions.
-
-> Plugins cannot set process-level environment variables, so this step is unavoidable until the flag is no longer experimental.
+Add this to your shell profile (`~/.zshrc`, `~/.bash_profile`, etc.) so it persists across sessions. Known teams limitations apply (no `/resume` of in-process teammates, slow shutdown, one team at a time) — these now only affect the features above, not the whole plugin.
 
 ## 3. Verify
 
@@ -37,8 +44,11 @@ Three agents should post positions and the Steward should synthesize a recommend
 
 ## Troubleshooting
 
-**"Agent teams not enabled" preflight error**
-Confirm `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is exported in the shell that launched Claude Code. Restart Claude Code after exporting.
+**"Orchestration: sequential" notice on every session**
+Neither workflows nor agent teams are available. Update Claude Code to ≥ 2.1.154, check that Dynamic workflows isn't disabled in `/config` (or by `CLAUDE_CODE_DISABLE_WORKFLOWS` / org managed settings), or export `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Sequential mode still works — it's just slower.
+
+**`--meet` says live steering is unavailable**
+Live panel steering requires the agent-teams flag (step 2b). Confirm `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is exported in the shell that launched Claude Code, then restart Claude Code.
 
 **Skills not discovered**
 Each skill directory must contain a `SKILL.md`. Run `/plugin reload agentic-council` if you've upgraded.

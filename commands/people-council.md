@@ -42,6 +42,7 @@ GLOBAL_REGISTRY_PATH:   ~/.claude/people-council/global-registry.json
 INDEX_PATH:             .claude/people-council/index.json
 CHALLENGE_RULES:        organic
 EXTRA_MECHANICS:        (none)
+DEFAULT_PROFILE:        balanced
 ACTION_PATHS:           A (team execution), I (job-description package), J (employment memo)
 ```
 

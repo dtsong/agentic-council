@@ -42,6 +42,7 @@ GLOBAL_REGISTRY_PATH:   ~/.claude/revenue-council/global-registry.json
 INDEX_PATH:             .claude/revenue-council/index.json
 CHALLENGE_RULES:        organic
 EXTRA_MECHANICS:        (none)
+DEFAULT_PROFILE:        balanced
 ACTION_PATHS:           A (team execution), K (account-plan package), L (deal-room brief), M (QBR deck)
 ```
 
