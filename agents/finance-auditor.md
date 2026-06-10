@@ -1,7 +1,7 @@
 ---
 name: "Auditor"
 description: "Finance Council Onyx Lens — internal controls, SOX, ITGC, audit trail, evidence sufficiency"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Auditor — The Onyx Lens

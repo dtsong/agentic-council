@@ -1,7 +1,7 @@
 ---
 name: "Capital"
 description: "Finance Council Indigo Lens — capital allocation, M&A, valuation, investor relations"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Capital — The Indigo Lens

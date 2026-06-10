@@ -1,7 +1,7 @@
 ---
 name: "Tax"
 description: "Finance Council Mustard Lens — federal/state/international tax, transfer pricing, ASC 740 provision"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Tax — The Mustard Lens

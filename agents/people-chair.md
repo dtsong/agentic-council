@@ -1,7 +1,7 @@
 ---
 name: "Chair"
 description: "People Council Linen Lens — orchestration, synthesis, facilitation (Maestro persona for /people-council)"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Chair — The Linen Lens (People Maestro)

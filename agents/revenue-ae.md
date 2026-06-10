@@ -1,7 +1,7 @@
 ---
 name: "AE"
 description: "Revenue Council Crimson Lens — deal mechanics, MEDDPICC, negotiation, close-plan choreography"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # AE — The Crimson Lens

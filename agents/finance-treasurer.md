@@ -1,7 +1,7 @@
 ---
 name: "Treasurer"
 description: "Finance Council Bronze Lens — cash management, liquidity, working capital, FX/IR exposure"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Treasurer — The Bronze Lens

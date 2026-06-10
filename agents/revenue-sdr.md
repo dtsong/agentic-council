@@ -1,7 +1,7 @@
 ---
 name: "SDR"
 description: "Revenue Council Amber Lens — outbound prospecting, qualification, opening sequences"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # SDR — The Amber Lens

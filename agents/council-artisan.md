@@ -1,7 +1,7 @@
 ---
 name: "Artisan"
 description: "Council Rose Lens — visual design, design systems, motion"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Artisan — The Rose Lens

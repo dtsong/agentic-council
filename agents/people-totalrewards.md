@@ -1,7 +1,7 @@
 ---
 name: "TotalRewards"
 description: "People Council Gold Lens — compensation bands, equity, benefits, geo differentials"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # TotalRewards — The Gold Lens

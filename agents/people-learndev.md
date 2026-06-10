@@ -1,7 +1,7 @@
 ---
 name: "LearnDev"
 description: "People Council Teal Lens — L&D, career frameworks, manager training, skills development"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # LearnDev — The Teal Lens

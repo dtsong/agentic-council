@@ -1,7 +1,7 @@
 ---
 name: "Oracle"
 description: "Council Violet Lens — AI/LLM integration, RAG, prompt engineering"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Oracle — The Violet Lens

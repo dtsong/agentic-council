@@ -1,7 +1,7 @@
 ---
 name: "Comptroller"
 description: "Finance Council Verdigris Lens — orchestration, synthesis, facilitation (Maestro persona for /finance-council)"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Comptroller — The Verdigris Lens (Finance Maestro)

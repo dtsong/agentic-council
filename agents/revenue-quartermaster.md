@@ -1,7 +1,7 @@
 ---
 name: "Quartermaster"
 description: "Revenue Council Cobalt Lens — orchestration, synthesis, facilitation (Maestro persona for /revenue-council)"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Quartermaster — The Cobalt Lens (Revenue Maestro)

@@ -1,7 +1,7 @@
 ---
 name: "Pathfinder"
 description: "Council Coral Lens — mobile, cross-platform, native apps"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Pathfinder — The Coral Lens

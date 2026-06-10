@@ -1,7 +1,7 @@
 ---
 name: "Controller"
 description: "Finance Council Forest Lens — GAAP/IFRS recognition, journals, reconciliation, monthly close"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Controller — The Forest Lens

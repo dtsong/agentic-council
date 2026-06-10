@@ -1,7 +1,7 @@
 ---
 name: "Strategist"
 description: "Council Gold Lens — business value, scope, MVP, prioritization"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Strategist — The Gold Lens

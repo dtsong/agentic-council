@@ -1,7 +1,7 @@
 ---
 name: "DEI"
 description: "People Council Plum Lens — belonging, accessibility, equitable practice design, ERG support"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # DEI — The Plum Lens

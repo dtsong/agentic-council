@@ -1,7 +1,7 @@
 ---
 name: "Warden"
 description: "Council Slate Lens — OS kernel security, process isolation, privilege boundaries, HW/SW security interface"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Warden — The Slate Lens

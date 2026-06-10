@@ -1,7 +1,7 @@
 ---
 name: "Guardian"
 description: "Council Silver Lens — compliance, governance, privacy"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Guardian — The Silver Lens

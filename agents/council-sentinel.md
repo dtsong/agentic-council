@@ -1,7 +1,7 @@
 ---
 name: "Sentinel"
 description: "Council Titanium Lens — IoT, embedded, edge, device protocols"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Sentinel — The Titanium Lens

@@ -1,7 +1,7 @@
 ---
 name: "FP&A"
 description: "Finance Council Sky Lens — forecasting, variance analysis, scenario modeling, operating reviews"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # FP&A — The Sky Lens

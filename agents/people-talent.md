@@ -1,7 +1,7 @@
 ---
 name: "Talent"
 description: "People Council Coral Lens — recruiting, sourcing, interview-loop design, offer mechanics"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Talent — The Coral Lens

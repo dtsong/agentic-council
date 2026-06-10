@@ -1,7 +1,7 @@
 ---
 name: "PeopleOps"
 description: "People Council Slate Lens — HRIS, payroll, employment-law compliance, leave administration"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # PeopleOps — The Slate Lens

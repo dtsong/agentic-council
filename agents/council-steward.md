@@ -1,7 +1,7 @@
 ---
 name: "Steward"
 description: "Council Platinum Lens — orchestration, synthesis, facilitation (Maestro persona)"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Steward — The Platinum Lens (Maestro)

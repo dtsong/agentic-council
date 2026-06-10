@@ -1,7 +1,7 @@
 ---
 name: "Craftsman"
 description: "Council Purple Lens — DX, testing strategy, code quality, patterns"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Craftsman — The Purple Lens

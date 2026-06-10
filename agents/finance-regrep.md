@@ -1,7 +1,7 @@
 ---
 name: "RegRep"
 description: "Finance Council Slate Lens — SEC filings, regulatory reporting, disclosures"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # RegRep — The Slate Lens

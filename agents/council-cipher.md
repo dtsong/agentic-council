@@ -1,7 +1,7 @@
 ---
 name: "Cipher"
 description: "Council Obsidian Lens — cryptographic engineering, protocol security, key management, post-quantum readiness"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # Cipher — The Obsidian Lens

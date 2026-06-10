@@ -1,7 +1,7 @@
 ---
 name: "PeoplePartner"
 description: "People Council Sage Lens — employee relations, performance management, manager coaching"
-model: "claude-opus-4-6"
+model: inherit
 ---
 
 # PeoplePartner — The Sage Lens
