@@ -28,7 +28,7 @@ The resolved backend is printed when it differs from the preferred one, and reco
 
 ## Why deliberation moved to workflows (v1.2)
 
-Anthropic's framing for choosing between primitives is *who holds the plan*: with subagents and teams, Claude decides turn by turn; with a workflow, the script decides. The council's deliberation — positions in parallel, pick tension pairs, paired rebuttals, converge, synthesize — is a fixed structure. Encoding it as a script bought:
+Anthropic's framing for choosing between primitives is *who holds the plan*: with subagents and teams, Claude decides turn by turn; with a workflow, the script decides. The council's deliberation — survey the codebase once for everyone, positions in parallel, pick tension pairs, paired rebuttals, converge, synthesize — is a fixed structure. Encoding it as a script bought:
 
 - **No experimental flag** for the core flow — workflows are available on all paid plans.
 - **Context hygiene** — a 7-agent, 3-round deliberation's full text never enters your session; only the structured Decision Log and Tension Resolutions come back.
@@ -36,7 +36,7 @@ Anthropic's framing for choosing between primitives is *who holds the plan*: wit
 - **Resumability** — completed agents return cached results if a run is interrupted.
 - **A hard token budget** — the mode's budget (e.g. ~750K standard, ~2M audit) is a ceiling, not a suggestion.
 
-The scripts ship in the plugin at `references/workflows/council-deliberation.template.js` and `council-audit.template.js`. The conductor invokes them verbatim — everything session-specific (roster, idea, skill content, model routing) flows through `args`, so the same scripts serve all four councils.
+The scripts ship in the plugin at `references/workflows/council-deliberation.template.js` and `council-audit.template.js`. The conductor writes a per-session copy with one marked line rewritten to a literal `INPUT` object (roster, idea, skill content, model routing) and runs that copy via the Workflow tool's `scriptPath`; the logic below the INPUT line is byte-for-byte identical, so the same scripts serve all four councils. Injecting literals replaced an earlier attempt to pass everything through the runtime `args` global, which proved unreliable for large nested payloads — a failed run now degrades to teams/sequential rather than improvising a substitute script.
 
 What teams still do better — and why `--meet` and Path A prefer them: teammates are persistent (they remember their own Round 1 reasoning), they message *each other* directly, and you can jump into any teammate's session mid-flight (Shift+Down). Workflow agents compensate by re-reading their own prior round files from disk ("it is YOUR prior work"), which works because every round has always been persisted.
 

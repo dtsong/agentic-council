@@ -23,7 +23,7 @@ That's it for the core flow. As of v1.2.0 the council deliberates via Claude Cod
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1   # optional
 ```
 
-See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. Without either runtime the engine degrades to sequential agent calls — slower, same artifacts.
+See [INSTALL.md](./INSTALL.md) for the full setup including troubleshooting. Without either runtime the engine degrades to sequential agent calls — slower and with no persistent agent memory across rounds (same on-disk artifacts, shallower deliberation).
 
 ## Quick start
 

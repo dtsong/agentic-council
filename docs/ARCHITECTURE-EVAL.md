@@ -49,7 +49,7 @@ Degradation order everywhere: preferred backend → the other → sequential Tas
 
 **Primary quality risk accepted:** workflow agents are fresh contexts, so a member doesn't "remember" its Round 1 reasoning the way a persistent teammate does. Mitigation: every R2/R3 prompt instructs the agent to read its own prior round file first ("it is YOUR prior work"). The teams deliberation path is retained verbatim as a fallback, which also makes A/B comparison possible if deliberation depth regresses.
 
-**Why not ship the scripts as saved workflows?** Plugins can't ship a `workflows/` component (verified against the plugin spec, June 2026 — recognized dirs are skills/commands/agents/hooks/mcp/lsp/monitors/bin). The templates live in `references/workflows/*.template.js`; the conductor invokes them verbatim via the Workflow tool with all session specifics in `args`. If plugin workflow distribution lands later, promote them to first-class saved workflows.
+**Why not ship the scripts as saved workflows?** Plugins can't ship a `workflows/` component (verified against the plugin spec, June 2026 — recognized dirs are skills/commands/agents/hooks/mcp/lsp/monitors/bin). The templates live in `references/workflows/*.template.js`; the conductor injects session specifics into a marked `INPUT` line and runs a per-session copy via the Workflow tool's `scriptPath`. (This replaced passing everything through the runtime `args` global, which proved unreliable for large nested payloads — see ORCHESTRATION.md.) If plugin workflow distribution lands later, promote them to first-class saved workflows.
 
 ## Cost-profile design notes
 

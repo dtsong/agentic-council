@@ -1,8 +1,12 @@
 // Canonical deliberation workflow for agentic-council (all themes).
-// The conductor invokes this script VERBATIM via the Workflow tool — every
-// session-specific value flows through `args`. Do not substitute into the body.
+// The engine writes a per-session copy of this file with the single line marked
+// "ENGINE REPLACES THIS LINE" rewritten to a literal `INPUT` object, then runs
+// THAT copy via the Workflow tool's `scriptPath` (no `args` parameter). Passing
+// large nested payloads through the runtime `args` global proved unreliable
+// (roster.skillContent, interviewTranscript); injecting literals is deterministic.
+// Everything below the INPUT line is invoked byte-for-byte unchanged.
 //
-// args contract:
+// INPUT contract:
 //   sessionDir          absolute path to $SESSION_DIR (must exist, with deliberation/round{1,2,3}/)
 //   workspace           absolute workspace path
 //   idea                the idea under deliberation
@@ -15,12 +19,14 @@
 //   challengeModel      model tier for Round 2 challenge agents (null → each member's own model)
 //   guidedFeedback      user feedback injected into pairing (guided mode, second invocation)
 //   startAtRound        1 (default) | 2 to resume from pairing using round1 files on disk
+//   surveyModel         model tier for the shared codebase-survey agent (cheap tier recommended)
 //   designTemplate      reserved; "engine" = the engine's design.md section layout
 
 export const meta = {
   name: 'council-deliberation',
   description: 'Council deliberation: parallel positions, tension-pair challenges, convergence, synthesis',
   phases: [
+    { title: 'Survey', detail: 'one agent maps the codebase for all members to share' },
     { title: 'Position', detail: 'all members write positions in parallel' },
     { title: 'Pairing', detail: 'judge selects 2-4 tension pairs from positions' },
     { title: 'Challenge', detail: 'pair members rebut each other' },
@@ -29,15 +35,18 @@ export const meta = {
   ],
 }
 
+const INPUT = (typeof args !== 'undefined' && args) ? args : {}   // ENGINE REPLACES THIS LINE
+
 const {
   sessionDir, workspace, idea,
   contextBlock = '', interviewTranscript = '', pairingRules = 'organic',
   roster = [], rounds = 3, maxPairs = 4,
   challengeModel = null, guidedFeedback = null, startAtRound = 1,
-} = args || {}
+  surveyModel = null,
+} = INPUT
 
 if (!sessionDir || !idea || !Array.isArray(roster) || roster.length === 0) {
-  throw new Error('council-deliberation requires args: sessionDir, idea, roster[]')
+  throw new Error('council-deliberation requires inputs: sessionDir, idea, roster[]')
 }
 
 const POSITION_SCHEMA = {
@@ -152,6 +161,29 @@ ${idea}
 ## Interview Transcript
 ${interviewTranscript}`
 
+// ---- Survey: one shared codebase map (replaces N redundant explorations) ----
+// Seven members each exploring the same repo costs ~30k tokens apiece. One
+// shared map read from disk collapses that to a single survey + cheap reads.
+const codebaseMapPath = `${sessionDir}/context/codebase-map.md`
+if (startAtRound <= 1) {
+  phase('Survey')
+  await agent(`You are the council's codebase surveyor. Produce ONE shared map that every council member reads instead of each independently exploring ${workspace}.
+
+Explore ${workspace} efficiently — sample entry points, configs, key modules, data models, test setup, and conventions. Do NOT read every file.
+
+Write a concise map (target under ~1500 words) to ${codebaseMapPath} (create the directory if it does not exist) covering:
+- Project shape: languages, frameworks, how it builds/runs, directory layout
+- Key modules and their responsibilities, with paths
+- Data models / schemas and where they live
+- External integrations and system boundaries
+- Testing setup and conventions
+- Anything a reviewer must know before proposing changes
+
+Return a one-line confirmation.`,
+    { label: 'Survey', phase: 'Survey', model: surveyModel || undefined })
+  log('Codebase survey complete — members share one map instead of exploring separately')
+}
+
 // ---- Round 1: Position (parallel) ----
 let positions = []
 if (startAtRound <= 1) {
@@ -163,7 +195,9 @@ if (startAtRound <= 1) {
 ${m.skillContent || '(none loaded)'}
 
 ## Round 1: Position
-Explore the codebase at ${workspace} first to ground your position in the actual code.
+A shared codebase map is at ${codebaseMapPath} — read it FIRST to ground your
+position in the actual code. Explore ${workspace} directly ONLY for specifics
+your ${m.color} lens needs that the map does not already cover.
 Ground your position using the Process steps from your loaded skills; include
 skill-formatted outputs as appendices.
 

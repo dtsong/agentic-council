@@ -36,12 +36,12 @@ Each themed command file must define these variables before referencing this eng
 The engine selects an orchestration backend per session — it never requires a single runtime and **never hard-exits** here.
 
 1. **Detect teams:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` set to `1` (`printenv CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` via Bash) → teams available.
-2. **Detect workflows:** the Workflow tool is available and `CLAUDE_CODE_DISABLE_WORKFLOWS` is unset/empty (`printenv CLAUDE_CODE_DISABLE_WORKFLOWS`). Workflows require Claude Code ≥ 2.1.154. If a workflow invocation later fails because the runtime is unavailable or disabled by org policy, treat that failure as detection — degrade to the next backend and continue.
+2. **Detect workflows:** the Workflow tool is available and `CLAUDE_CODE_DISABLE_WORKFLOWS` is unset/empty (`printenv CLAUDE_CODE_DISABLE_WORKFLOWS`). Workflows require Claude Code ≥ 2.1.154. If a workflow invocation later fails because the runtime is unavailable or disabled by org policy — **or throws on its input guard / errors on tool parameters** (a sign inputs did not reach the script) — treat that failure as detection: degrade to the next backend and continue. **Never hand-author a replacement script** to work around a failed run; the canonical logic, model routing, and token budget would be lost.
 3. **Resolve `$ORCH_BACKEND`** per the mode's Backend column in [Mode Configuration](#mode-configuration):
    - `inline` modes need neither capability — plain Task calls.
    - `workflow` modes degrade: workflow → teams → sequential (conductor drives each round with plain parallel Task calls).
    - `teams-preferred` phases degrade: teams → workflow/sequential degradation (documented at the phase).
-4. Print a one-line notice of the selected backend when it differs from the mode's preferred backend, e.g. `Orchestration: teams (workflows unavailable)` or `Orchestration: sequential (neither workflows nor agent teams available — slower, same artifacts)`.
+4. Print a one-line notice of the selected backend when it differs from the mode's preferred backend, e.g. `Orchestration: teams (workflows unavailable)` or `Orchestration: sequential (neither workflows nor agent teams available — slower, no persistent agent memory across rounds; same on-disk artifacts, shallower deliberation)`.
 
 The resolved backend is recorded in `session.md` (`Backend:`) during Phase 1.1 setup.
 
@@ -684,28 +684,32 @@ After spawning agents but before deliberation, load relevant skills for each age
 
 Run the full R1 → pairing → R2 → R3 → synthesis loop as a background Workflow so round texts never enter the conductor's context.
 
-1. Read the canonical script at `${CLAUDE_PLUGIN_ROOT}/references/workflows/council-deliberation.template.js` and invoke the **Workflow tool** with that script verbatim (everything session-specific flows through `args` — substitute nothing in the script body):
+1. **Build the session script — do not rely on `args` binding.** Read the canonical script at `${CLAUDE_PLUGIN_ROOT}/references/workflows/council-deliberation.template.js`. Replace the single line marked `// ENGINE REPLACES THIS LINE` with `const INPUT = { …session values… }` — a literal object carrying every value below — and leave the rest of the file byte-for-byte unchanged:
 
    ```
-   args:
-     sessionDir: <absolute $SESSION_DIR>
-     workspace: $WORKSPACE
-     idea: $IDEA
-     contextBlock: <PROJECT_CONTEXT block>
-     interviewTranscript: <full transcript, or topic summary for modes without interview>
-     pairingRules: <$CHALLENGE_RULES text from the theme>
-     roster: [{ name, agentType, model, color, skillContent }]   # from Phase 2.4/2.5
-     rounds: 3
-     maxPairs: 4
-     challengeModel: <Round 2 tier from the routing table, or null for balanced (persistent-style prompts still run as fresh agents)>
-     designTemplate: "engine"                                    # script knows the design.md section layout
+   const INPUT = {
+     sessionDir: "<absolute $SESSION_DIR>",
+     workspace: "$WORKSPACE",
+     idea: "$IDEA",
+     contextBlock: "<PROJECT_CONTEXT block>",
+     interviewTranscript: "<full transcript, or topic summary for modes without interview>",
+     pairingRules: "<$CHALLENGE_RULES text from the theme>",
+     roster: [{ name, agentType, model, color, skillContent }],   // from Phase 2.4/2.5
+     rounds: 3,
+     maxPairs: 4,
+     challengeModel: <Round 2 tier from the routing table, or null for balanced>,
+     surveyModel: <audit tier from the routing table — the cheap shared-survey pass>,
+     designTemplate: "engine",
+   }
    ```
 
-2. The run executes in the background — the session stays responsive; check progress via the workflow's progress view if the user asks.
-3. On completion the workflow returns **only** the structured synthesis payload (tension pairs, Tension Resolutions rows, Decision Log rows, overview). All round files and `design.md` are already on disk under `$SESSION_DIR`.
-4. Continue at [Synthesis](#synthesis) — commit, then present the design-approval touchpoint **from the returned payload**; do not re-read round files into context.
+   Write the result to `$SESSION_DIR/run-deliberation.js`, then invoke the **Workflow tool** with `{ scriptPath: "$SESSION_DIR/run-deliberation.js" }` — **pass no `args` parameter.** Injecting literals is deterministic; the runtime `args` global has proven unreliable for large nested payloads (roster `skillContent`, transcript).
+2. **If the run throws on its input guard or errors on tool parameters, treat it as workflow-unavailable and degrade** to teams (if enabled) or the sequential fallback below. **Never hand-author a substitute script** — a per-session rewrite silently drops the model routing, token `budget` ceiling, and output schemas, and its artifacts are unverifiable against the canonical logic.
+3. The run executes in the background — the session stays responsive; check progress via the workflow's progress view if the user asks.
+4. On completion the workflow returns **only** the structured synthesis payload (tension pairs, Tension Resolutions rows, Decision Log rows, overview). All round files and `design.md` are already on disk under `$SESSION_DIR`.
+5. Continue at [Synthesis](#synthesis) — commit, then present the design-approval touchpoint **from the returned payload**; do not re-read round files into context.
 
-**Guided mode (workflow backend):** invoke the script twice. First with `rounds: 1` (positions only — script returns position summaries), present the positions gate below, then re-invoke with `startAtRound: 2` and the user's feedback as `guidedFeedback`. Round 1 files on disk carry over between invocations.
+**Guided mode (workflow backend):** build and run `run-deliberation.js` twice. First with `rounds: 1` in `INPUT` (positions only — script returns position summaries), present the positions gate below, then regenerate the script with `startAtRound: 2` and the user's feedback as `guidedFeedback` and run it again. Round 1 files (and the codebase survey) on disk carry over between invocations.
 
 **Quick mode (inline backend):** no workflow, no team. Run Round 1 as one parallel batch of one-shot Task calls — for each of the 3 selected agents: `subagent_type` from the roster, `model:` from the routing table, prompt = the Round 1 prompt below plus the instruction to read their persona file for formats. Then produce the design sketch as described under Quick mode below.
 
@@ -1442,7 +1446,7 @@ A persistent, self-healing audit system that strategically divides the codebase 
 
 ### 5D.2 Audit Execution
 
-**Workflow backend (primary):** run the entire audit loop as a background Workflow. Read `${CLAUDE_PLUGIN_ROOT}/references/workflows/council-audit.template.js` and invoke the **Workflow tool** with that script verbatim, passing via `args`: `{ sessionDir, workspace, zones (from the coverage map), criteria, auditModel (audit tier from the routing table), maxPasses: 5, contextBlock }`. The script runs waves of up to 4 zone agents in parallel, a gap-detection judge between passes, loops until a pass yields zero new findings (or the pass cap / token budget is hit — noted as "budget-converged" in the report), and writes `audit/report.md`, the coverage map, the findings log, and per-zone reports — on-disk artifacts identical to the conductor-driven loop. The checkpoint system (5D.3) is **not needed** on this path; the workflow runs outside the conductor's context and is resumable in-session. On completion, continue at 5D.4 step 4 (commit + present results).
+**Workflow backend (primary):** run the entire audit loop as a background Workflow. Read `${CLAUDE_PLUGIN_ROOT}/references/workflows/council-audit.template.js`, replace the single line marked `// ENGINE REPLACES THIS LINE` with `const INPUT = { sessionDir: "<absolute $SESSION_DIR>", workspace: "$WORKSPACE", zones: [<from the coverage map>], criteria: "<audit criteria>", auditModel: <audit tier from the routing table>, maxPasses: 5, contextBlock: "<PROJECT_CONTEXT block>" }` (leave the rest byte-for-byte unchanged), write it to `$SESSION_DIR/run-audit.js`, and invoke the **Workflow tool** with `{ scriptPath: "$SESSION_DIR/run-audit.js" }` — pass no `args` parameter. If the run throws on its input guard or errors on parameters, treat it as workflow-unavailable and use the conductor-driven fallback below; never hand-author a substitute script. The script runs waves of up to 4 zone agents in parallel, a gap-detection judge between passes, loops until a pass yields zero new findings (or the pass cap / token budget is hit — noted as "budget-converged" in the report), and writes `audit/report.md`, the coverage map, the findings log, and per-zone reports — on-disk artifacts identical to the conductor-driven loop. The checkpoint system (5D.3) is **not needed** on this path; the workflow runs outside the conductor's context and is resumable in-session. On completion, continue at 5D.4 step 4 (commit + present results).
 
 **Conductor-driven fallback (workflows unavailable):** spawn audit agents **in waves** of 2-4 zones at a time:
 

@@ -1,8 +1,11 @@
 // Canonical deep-audit workflow for agentic-council (Phase 5D / --audit mode).
-// The conductor invokes this script VERBATIM via the Workflow tool — every
-// session-specific value flows through `args`. Do not substitute into the body.
+// The engine writes a per-session copy of this file with the single line marked
+// "ENGINE REPLACES THIS LINE" rewritten to a literal `INPUT` object, then runs
+// THAT copy via the Workflow tool's `scriptPath` (no `args` parameter) — the
+// runtime `args` global proved unreliable for large nested payloads. Everything
+// below the INPUT line is invoked byte-for-byte unchanged.
 //
-// args contract:
+// INPUT contract:
 //   sessionDir   absolute path to $SESSION_DIR (audit/{zones,} dirs created by 5D.1)
 //   workspace    absolute workspace path
 //   zones        [{ name, files: [paths] | description, loc }] from the coverage map
@@ -26,14 +29,16 @@ export const meta = {
   ],
 }
 
+const INPUT = (typeof args !== 'undefined' && args) ? args : {}   // ENGINE REPLACES THIS LINE
+
 const {
   sessionDir, workspace,
   zones = [], criteria = '', auditModel = 'sonnet',
   maxPasses = 5, contextBlock = '',
-} = args || {}
+} = INPUT
 
 if (!sessionDir || !workspace || zones.length === 0) {
-  throw new Error('council-audit requires args: sessionDir, workspace, zones[]')
+  throw new Error('council-audit requires inputs: sessionDir, workspace, zones[]')
 }
 
 const ZONE_SCHEMA = {
