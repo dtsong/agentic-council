@@ -4,6 +4,8 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-25
+
 ### Changed
 - **Deliberation modes prefer agent teams over workflows.** `standard`, `auto`, `guided`, and `deep` (Phase 3) now resolve to `teams-preferred`, degrading to the workflow path (then sequential) when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is unset. Workflow subagents are stateless, so the deliberation script re-injects the project context, each member's full skill content, and prior-round positions on every spawn (~17-21 re-primings for a 5-agent / 3-round run); teams keep that context across rounds and pay priming roughly once per teammate. Same deliberation logic and on-disk artifacts, materially fewer tokens (Mode-table budgets ~halved). The workflow path is retained as the degradation target and keeps deterministic resume; the deep-audit path (5D / `--audit`) stays on workflow for its loop-until-convergence token-budget ceiling.
 
