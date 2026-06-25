@@ -8,5 +8,15 @@
   },
   "homepage": "https://github.com/dtsong/agentic-council",
   "repository": "https://github.com/dtsong/agentic-council",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "commands": [
+    "./commands/council.md",
+    "./commands/brainstorm.md",
+    "./commands/deepen.md",
+    "./commands/handover.md",
+    "./commands/ship.md",
+    "./commands/finance-council.md",
+    "./commands/people-council.md",
+    "./commands/revenue-council.md"
+  ]
 }

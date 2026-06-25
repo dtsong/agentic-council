@@ -4,6 +4,9 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+- **Slash commands now register.** `plugin.json` declares a `commands` array (`council`, `brainstorm`, `deepen`, `handover`, `ship`, `finance-council`, `people-council`, `revenue-council`). Claude Code 2.1.x only registers a plugin's `commands/*.md` as invokable slash commands when `plugin.json` lists them; without it every command file was absorbed as a skill, so bare `/council` failed with "Unknown command" and only `/agentic-council:council` existed. `_council-engine.md` is an include (no frontmatter) and is intentionally excluded.
+
 ## [1.2.0] - 2026-06-10
 
 ### Added
