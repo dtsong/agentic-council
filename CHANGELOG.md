@@ -4,6 +4,9 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+- **Deliberation modes prefer agent teams over workflows.** `standard`, `auto`, `guided`, and `deep` (Phase 3) now resolve to `teams-preferred`, degrading to the workflow path (then sequential) when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is unset. Workflow subagents are stateless, so the deliberation script re-injects the project context, each member's full skill content, and prior-round positions on every spawn (~17-21 re-primings for a 5-agent / 3-round run); teams keep that context across rounds and pay priming roughly once per teammate. Same deliberation logic and on-disk artifacts, materially fewer tokens (Mode-table budgets ~halved). The workflow path is retained as the degradation target and keeps deterministic resume; the deep-audit path (5D / `--audit`) stays on workflow for its loop-until-convergence token-budget ceiling.
+
 ### Fixed
 - **Slash commands now register.** `plugin.json` declares a `commands` array (`council`, `brainstorm`, `deepen`, `handover`, `ship`, `finance-council`, `people-council`, `revenue-council`). Claude Code 2.1.x only registers a plugin's `commands/*.md` as invokable slash commands when `plugin.json` lists them; without it every command file was absorbed as a skill, so bare `/council` failed with "Unknown command" and only `/agentic-council:council` existed. `_council-engine.md` is an include (no frontmatter) and is intentionally excluded.
 
