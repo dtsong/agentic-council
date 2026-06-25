@@ -79,14 +79,16 @@ Strip the matched flag from `$ARGUMENTS`. Remaining text is the **idea**.
 |------|--------|--------|--------|-------------|---------|--------|--------|
 | brainstorm | 0 + inline | 3 (sonnet) | 0 | 0 | inline | — | Inline chat only |
 | quick | 0, 2, 3(1-round), 4(light) | 3 | 1 | 1 | inline | — | design-sketch.md, task list |
-| standard | 0, 1, 2, 3, 4, 5 | 3-7 | 3 | 6-7 | workflow | ~750K | Full design doc, PRD, GitHub issues |
-| deep | 0, 1, 2, 3, 4, 5D | 3-7 | 3 | 5-6 | workflow | ~1.5M + ~2M audit | Full design doc, PRD, audit report, GitHub issues |
-| auto | 0, 2, 3, 4, 5 | 3-7 | 3 | 0 | workflow | ~750K | Full design doc, PRD, GitHub issues |
-| guided | 0, 1, 2, 3, 4, 5 | 3-7 | 3 + gates | 8+ | workflow ×2 | ~750K split | Full design doc, PRD, GitHub issues |
+| standard | 0, 1, 2, 3, 4, 5 | 3-7 | 3 | 6-7 | teams-preferred | ~450K | Full design doc, PRD, GitHub issues |
+| deep | 0, 1, 2, 3, 4, 5D | 3-7 | 3 | 5-6 | teams-preferred (5D: workflow) | ~900K + ~2M audit | Full design doc, PRD, audit report, GitHub issues |
+| auto | 0, 2, 3, 4, 5 | 3-7 | 3 | 0 | teams-preferred | ~450K | Full design doc, PRD, GitHub issues |
+| guided | 0, 1, 2, 3, 4, 5 | 3-7 | 3 + gates | 8+ | teams-preferred | ~450K | Full design doc, PRD, GitHub issues |
 | meeting | 0, 1(light), 2, 3-meeting | 3-7 | Meeting protocol | 2-3 | teams-preferred | — | meeting-notes.md |
 | audit | 0, context, 5D | 3-5 | 0 | 2-3 | workflow | ~2M | Deep audit report |
 
-Backend values: `inline` = plain Task calls; `workflow` = background Workflow run (degrades to teams, then sequential); `teams-preferred` = agent teams when available (degrades per phase notes). Budget = token target passed to the workflow invocation (tune per project size).
+Backend values: `inline` = plain Task calls; `teams-preferred` = agent teams when available, degrading to workflow then sequential; `workflow` = background Workflow run (degrades to teams, then sequential). Budget = token target passed to the workflow invocation when that backend is selected (tune per project size).
+
+**Why deliberation prefers teams.** Workflow subagents are stateless: every spawn re-injects the project context block, the member's full skill content, and prior-round positions into its prompt, so a 5-agent / 3-round run re-primes that payload ~17-21 times. Agent teams keep each member's context across rounds, paying priming roughly once per teammate — same deliberation, same artifacts, materially fewer tokens (budgets above are halved vs the workflow path). Workflow remains the degradation target and keeps deterministic resume; the deep-audit path (5D) stays on workflow because its loop-until-convergence zone sweep benefits from the hard token-budget ceiling rather than persistent memory.
 
 ### Cost Profiles & Model Routing
 
@@ -112,6 +114,8 @@ Pass the routed tier as the `model:` parameter on every Task spawn, and as each 
 | quick | 20–35K | 30–50K | 45–75K |
 | standard | 80–120K | 120–180K | 180–270K |
 | deep | standard + 50–80K audit | standard + 50–100K audit | standard + 80–150K audit |
+
+Estimates assume the preferred **teams** backend. The **workflow** degradation path runs higher (roughly the Mode table budgets) because stateless spawns re-prime context each round; the **sequential** fallback is higher still.
 
 Dollar figures live in the README **Cost guide** (pricing is dated there). On Claude Max plans there is no per-token dollar cost — sessions draw on plan rate limits instead.
 
@@ -680,7 +684,9 @@ After spawning agents but before deliberation, load relevant skills for each age
 
 **Mode applicability:** Standard, Deep, Auto, Guided run full 3-round deliberation. Quick runs 1 round only. Meeting uses [Meeting Protocol](#phase-3-meeting-cross-examination) instead. Brainstorm and Audit skip this phase.
 
-### Deliberation via Workflow (primary — workflow backend)
+> **Backend selection:** Deliberation modes prefer **teams** (see [Deliberation via Teams](#deliberation-via-teams-teams-backend)) — persistent teammates pay context priming once instead of re-injecting it on every stateless spawn. When the teams flag is unset, degrade to the **workflow** path below (which keeps deterministic resume), then the sequential fallback. Follow the subsection matching the resolved `$ORCH_BACKEND`.
+
+### Deliberation via Workflow (workflow backend — degradation target)
 
 Run the full R1 → pairing → R2 → R3 → synthesis loop as a background Workflow so round texts never enter the conductor's context.
 
