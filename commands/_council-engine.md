@@ -251,6 +251,7 @@ Every user-facing decision point must be self-contained in chat, and every file-
    ```bash
    cp "${CLAUDE_PLUGIN_ROOT}/references/render-session.py" "$SESSION_DIR/"
    cp "${CLAUDE_PLUGIN_ROOT}/references/session-page.template.html" "$SESSION_DIR/"
+   cp "${CLAUDE_PLUGIN_ROOT}/references/design-verdict.template.html" "$SESSION_DIR/" 2>/dev/null || true
    # write session-state.json first (schema below), then:
    python3 "$SESSION_DIR/render-session.py" "$SESSION_DIR" || true
    open "$SESSION_DIR/session.html" 2>/dev/null || xdg-open "$SESSION_DIR/session.html" 2>/dev/null || echo "Live page: $SESSION_DIR/session.html"
@@ -917,7 +918,7 @@ Update `$SESSION_DIR/session.md` phase to `planning`.
 
 **HTML verdict render (Standard / Deep / Guided):** Before the approval question, render the synthesis payload as a self-contained HTML page and open it in the browser:
 
-1. Read the reference template at `${CLAUDE_PLUGIN_ROOT}/references/design-verdict.template.html` (structure: masthead with session metadata and lens-color spectrum, two-track plan rails, tension ledger with per-agent lens dots and centered verdicts, risk cards, decision-log table). Fill it from the synthesis payload (overview, tension resolutions, decision log) plus session metadata; substitute the `{{...}}` placeholders and repeat the marked row/card blocks per item. HTML-escape substituted text (`&` to `&amp;`, `<` to `&lt;`, `>` to `&gt;`) except where a placeholder name explicitly allows markup (`{{HEADLINE_WITH_OPTIONAL_EM_ACCENT}}`, `{{OVERVIEW_2_3_SENTENCES_WITH_STRONG_ACCENTS}}`). The two-track and risk-card sections are OPTIONAL: fill them only when the payload's decision log carries phased-plan or severity data; otherwise delete them rather than fabricating content or re-reading deliberation files. Use each participating agent's lens color for attribution dots (distinct hex per agent; see the template's color comment). Before writing, verify no literal `{{` remains in the output.
+1. Read the template at `$SESSION_DIR/design-verdict.template.html` (pinned there at Phase 1.1 setup so mid-session plugin upgrades cannot change it), falling back to `${CLAUDE_PLUGIN_ROOT}/references/design-verdict.template.html` for sessions that predate the pinned copy (structure: masthead with session metadata and lens-color spectrum, two-track plan rails, tension ledger with per-agent lens dots and centered verdicts, risk cards, decision-log table). Fill it from the synthesis payload (overview, tension resolutions, decision log) plus session metadata; substitute the `{{...}}` placeholders and repeat the marked row/card blocks per item. HTML-escape substituted text (`&` to `&amp;`, `<` to `&lt;`, `>` to `&gt;`) except where a placeholder name explicitly allows markup (`{{HEADLINE_WITH_OPTIONAL_EM_ACCENT}}`, `{{OVERVIEW_2_3_SENTENCES_WITH_STRONG_ACCENTS}}`). The two-track and risk-card sections are OPTIONAL: fill them only when the payload's decision log carries phased-plan or severity data; otherwise delete them rather than fabricating content or re-reading deliberation files. Use each participating agent's lens color for attribution dots (distinct hex per agent; see the template's color comment). Before writing, verify no literal `{{` remains in the output.
 2. Write the result to `$SESSION_DIR/design.html` and open it (`open` on macOS, `xdg-open` on Linux).
 3. **Graceful degradation:** if the template is missing, the write fails, or no GUI browser is available, skip the render silently and proceed. The HTML is presentation only; `design.md` remains the artifact of record and `AskUserQuestion` below remains the sole approval mechanism.
 4. Update `session-state.json` (`phase: "verdict"`, `tensionPairs` from the synthesis payload) and rerun the scribe; the live page's Verdict section links to `design.html`.
@@ -1587,6 +1588,7 @@ $WORKSPACE/.claude/$THEME_ID/
       session.html                            # Live session page (scribe output)
       render-session.py                       # Scribe copy, pinned per session
       session-page.template.html              # Template copy, pinned per session
+      design-verdict.template.html            # Verdict template copy, pinned per session
       detail-*.md                             # Conductor detail asides
       interview-transcript.md
       interview-summary.md

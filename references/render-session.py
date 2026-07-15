@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 PHASE_ORDER = ["interview", "assembly", "deliberation", "verdict", "planning", "verification"]
@@ -33,36 +34,52 @@ PHASE_TITLES = {
 }
 BADGE_LABEL = {"pending": "Pending", "active": "In progress", "done": "Complete"}
 
-# Injected via {{META_REFRESH}} while the session is live. A plain
-# <meta http-equiv="refresh"> would collapse every expanded <details> and lose
-# the scroll position on each reload, so save and restore both around it.
+# Injected via {{META_REFRESH}}. A plain <meta http-equiv="refresh"> would
+# collapse every expanded <details> and lose the scroll position on each
+# reload, so save and restore both around it. Panels are keyed by section id,
+# card title, and summary text (not document index) because the set of details
+# elements changes between reloads on a live page. The completed page keeps the
+# restore half only (RELOAD_JS omitted) so the final reload preserves the view.
 AUTO_REFRESH_SCRIPT = """<script>
 (function () {
-  var KEY = "council-live-view";
+  var KEY = "council-live-view:" + location.pathname;
+  function keyFor(d) {
+    var card = d.closest(".card");
+    var title = card ? card.querySelector(".card-title") : null;
+    var section = d.closest("section");
+    var summary = d.querySelector("summary");
+    return [
+      section ? section.id : "",
+      title ? title.textContent : "",
+      summary ? summary.textContent : ""
+    ].join("|");
+  }
   try {
     var saved = JSON.parse(sessionStorage.getItem(KEY) || "null");
     if (saved) {
       addEventListener("DOMContentLoaded", function () {
         var open = saved.open || [];
-        document.querySelectorAll("details").forEach(function (d, i) {
-          if (open.indexOf(i) !== -1) d.open = true;
+        document.querySelectorAll("details").forEach(function (d) {
+          if (open.indexOf(keyFor(d)) !== -1) d.open = true;
         });
         scrollTo(0, saved.y || 0);
       });
     }
   } catch (e) {}
-  setTimeout(function () {
+__RELOAD__})();
+</script>"""
+
+RELOAD_JS = """  setTimeout(function () {
     try {
       var open = [];
-      document.querySelectorAll("details").forEach(function (d, i) {
-        if (d.open) open.push(i);
+      document.querySelectorAll("details").forEach(function (d) {
+        if (d.open) open.push(keyFor(d));
       });
       sessionStorage.setItem(KEY, JSON.stringify({ open: open, y: scrollY }));
     } catch (e) {}
     location.reload();
   }, 10000);
-})();
-</script>"""
+"""
 
 
 def esc(value):
@@ -80,11 +97,22 @@ def safe_color(value, fallback="#6b7078"):
 
 
 _CODE_SPAN = re.compile(r"`([^`]+)`")
+_LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+_HREF_SCHEME = re.compile(r"^([a-zA-Z][\w+.-]*):")
 _INLINE = [
     (re.compile(r"\*\*([^*]+)\*\*"), r"<strong>\1</strong>"),
     (re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)"), r"<em>\1</em>"),
-    (re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)"), r'<a href="\2">\1</a>'),
 ]
+
+
+def _link_sub(match):
+    label, href = match.group(1), match.group(2)
+    scheme = _HREF_SCHEME.match(href)
+    # Session content is LLM/user-written; only linkify safe schemes and
+    # relative paths so javascript: and friends render as plain text.
+    if scheme and scheme.group(1).lower() not in ("http", "https", "mailto"):
+        return "%s (%s)" % (label, href)
+    return '<a href="%s">%s</a>' % (href, label)
 
 
 def inline_md(text):
@@ -96,6 +124,7 @@ def inline_md(text):
         return "\x00%d\x00" % (len(spans) - 1)
 
     out = _CODE_SPAN.sub(stash, out)
+    out = _LINK.sub(_link_sub, out)
     for pattern, replacement in _INLINE:
         out = pattern.sub(replacement, out)
     for idx, span in enumerate(spans):
@@ -170,7 +199,7 @@ def md_to_html(text):
 
 def read_text(path):
     try:
-        return path.read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return ""
 
@@ -183,7 +212,7 @@ def load_state(session_dir):
             loaded = json.loads(state_path.read_text(encoding="utf-8"))
             if isinstance(loaded, dict):
                 state = loaded
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError):
             state = {}
     session_md = read_text(session_dir / "session.md")
 
@@ -215,8 +244,13 @@ def load_state(session_dir):
         if not isinstance(state.get(key), list):
             state[key] = []
     state["roster"] = [m for m in state["roster"] if isinstance(m, dict)]
+    for member in state["roster"]:
+        if not isinstance(member.get("skills"), list):
+            member["skills"] = []
+    state["tensionPairs"] = [p for p in state["tensionPairs"] if isinstance(p, (dict, list, tuple))]
     if not isinstance(state.get("phases"), list):
         state["phases"] = list(PHASE_ORDER)
+    state["phases"] = [p for p in state["phases"] if isinstance(p, str)]
     return state
 
 
@@ -225,9 +259,16 @@ def phase_status(state, phase_id, phases):
         return "done"
     current = state.get("phase", phases[0] if phases else "interview")
     current = PHASE_ALIASES.get(current, current)
-    try:
+    if current in phases:
         current_idx = phases.index(current)
-    except ValueError:
+    elif current in PHASE_ORDER:
+        # Mode-trimmed phase lists may omit the current phase (e.g. quick mode
+        # has no verification): everything that precedes it globally is done.
+        order = PHASE_ORDER.index(current)
+        current_idx = sum(
+            1 for p in phases if p in PHASE_ORDER and PHASE_ORDER.index(p) < order
+        )
+    else:
         current_idx = 0
     idx = phases.index(phase_id)
     if idx < current_idx:
@@ -300,7 +341,7 @@ def build_assembly(state, session_dir, status):
         return '<p class="muted">Assembly has not selected a bench yet.</p>'
     rows = []
     for member in roster:
-        skills = ", ".join(esc(s) for s in member.get("skills") or []) or "&mdash;"
+        skills = ", ".join(esc(s) for s in member.get("skills") or []) or "none"
         dot = '<i class="dot" style="background:%s"></i> ' % safe_color(member.get("color"))
         score = member.get("score", "")
         rows.append(
@@ -474,7 +515,8 @@ def build_page(state, session_dir, template):
         spectrum = "#3a3f4a 0%, #3a3f4a 100%"
         bench = '<span class="muted">Bench not yet assembled</span>'
 
-    refresh = "" if state.get("complete") else AUTO_REFRESH_SCRIPT
+    live = not state.get("complete")
+    refresh = AUTO_REFRESH_SCRIPT.replace("__RELOAD__", RELOAD_JS if live else "")
     replacements = {
         "{{META_REFRESH}}": refresh,
         "{{TITLE}}": esc("%s Live: %s" % (state["themeName"], state["idea"][:60])),
@@ -490,10 +532,11 @@ def build_page(state, session_dir, template):
         "{{TRACKER}}": "".join(tracker_items),
         "{{SECTIONS}}": "\n".join(sections),
     }
-    page = template
-    for placeholder, value in replacements.items():
-        page = page.replace(placeholder, value)
-    return page
+    # Single-pass substitution: sequential str.replace would rescan earlier
+    # substitutions, so a literal {{TRACKER}} inside the idea text would be
+    # re-expanded into page HTML.
+    token = re.compile("|".join(re.escape(k) for k in replacements))
+    return token.sub(lambda m: replacements[m.group(0)], template)
 
 
 def main(argv):
@@ -516,8 +559,19 @@ def main(argv):
     # browser auto-reloads, so a truncating in-place write risks torn reads.
     out_path = session_dir / "session.html"
     tmp_path = session_dir / ("session.html.%d.tmp" % os.getpid())
-    tmp_path.write_text(build_page(state, session_dir, template), encoding="utf-8")
-    os.replace(tmp_path, out_path)
+    try:
+        tmp_path.write_text(build_page(state, session_dir, template), encoding="utf-8")
+        os.replace(tmp_path, out_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    # Sweep tmp files orphaned by killed scribe runs; the age guard keeps
+    # concurrent writers' in-flight tmp files safe.
+    for stale in session_dir.glob("session.html.*.tmp"):
+        try:
+            if time.time() - stale.stat().st_mtime > 300:
+                stale.unlink()
+        except OSError:
+            pass
     return 0
 
 
