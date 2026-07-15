@@ -14,11 +14,15 @@ renders as a pending state. Exit 1 only when the session dir is missing.
 """
 import html as html_mod
 import json
+import os
 import re
 import sys
 from pathlib import Path
 
 PHASE_ORDER = ["interview", "assembly", "deliberation", "verdict", "planning", "verification"]
+# session.md's Phase field uses the engine vocabulary; "action" (Phase 5) means
+# everything up to verification is underway.
+PHASE_ALIASES = {"action": "verification"}
 PHASE_TITLES = {
     "interview": "Interview",
     "assembly": "Assembly",
@@ -29,13 +33,54 @@ PHASE_TITLES = {
 }
 BADGE_LABEL = {"pending": "Pending", "active": "In progress", "done": "Complete"}
 
+# Injected via {{META_REFRESH}} while the session is live. A plain
+# <meta http-equiv="refresh"> would collapse every expanded <details> and lose
+# the scroll position on each reload, so save and restore both around it.
+AUTO_REFRESH_SCRIPT = """<script>
+(function () {
+  var KEY = "council-live-view";
+  try {
+    var saved = JSON.parse(sessionStorage.getItem(KEY) || "null");
+    if (saved) {
+      addEventListener("DOMContentLoaded", function () {
+        var open = saved.open || [];
+        document.querySelectorAll("details").forEach(function (d, i) {
+          if (open.indexOf(i) !== -1) d.open = true;
+        });
+        scrollTo(0, saved.y || 0);
+      });
+    }
+  } catch (e) {}
+  setTimeout(function () {
+    try {
+      var open = [];
+      document.querySelectorAll("details").forEach(function (d, i) {
+        if (d.open) open.push(i);
+      });
+      sessionStorage.setItem(KEY, JSON.stringify({ open: open, y: scrollY }));
+    } catch (e) {}
+    location.reload();
+  }, 10000);
+})();
+</script>"""
+
 
 def esc(value):
     return html_mod.escape(str(value), quote=True)
 
 
+_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+
+
+def safe_color(value, fallback="#6b7078"):
+    """Colors land inside style attributes and the page <style> block, where
+    HTML entity escaping does not apply; allow hex literals only."""
+    value = str(value or "").strip()
+    return value if _COLOR.match(value) else fallback
+
+
+_CODE_SPAN = re.compile(r"`([^`]+)`")
 _INLINE = [
-    (re.compile(r"`([^`]+)`"), r"<code>\1</code>"),
     (re.compile(r"\*\*([^*]+)\*\*"), r"<strong>\1</strong>"),
     (re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)"), r"<em>\1</em>"),
     (re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)"), r'<a href="\2">\1</a>'),
@@ -43,9 +88,18 @@ _INLINE = [
 
 
 def inline_md(text):
-    out = esc(text)
+    out = esc(text).replace("\x00", "")
+    spans = []
+
+    def stash(match):
+        spans.append("<code>%s</code>" % match.group(1))
+        return "\x00%d\x00" % (len(spans) - 1)
+
+    out = _CODE_SPAN.sub(stash, out)
     for pattern, replacement in _INLINE:
         out = pattern.sub(replacement, out)
+    for idx, span in enumerate(spans):
+        out = out.replace("\x00%d\x00" % idx, span)
     return out
 
 
@@ -137,22 +191,32 @@ def load_state(session_dir):
         found = re.search(r"^%s:\s*(.+)$" % re.escape(key), session_md, re.MULTILINE)
         return found.group(1).strip() if found else default
 
-    if "idea" not in state:
+    # The state file is LLM-written; tolerate null or mistyped values, not just
+    # missing keys, so one bad field cannot freeze the live page for the session.
+    if not isinstance(state.get("idea"), str) or not state["idea"].strip():
         first_line = session_md.splitlines()[0].strip() if session_md.strip() else ""
         idea = re.sub(r"^#\s*[^:]*:\s*", "", first_line).strip("# ").strip()
         state["idea"] = idea or session_dir.name
-    state.setdefault("themeName", "Council")
-    state.setdefault("mode", "standard")
-    state.setdefault("profile", meta("Profile", "balanced"))
-    state.setdefault("backend", meta("Backend", "workflow"))
-    state.setdefault("sessionId", meta("Session ID", session_dir.name))
-    state.setdefault("date", meta("Date", ""))
-    state.setdefault("phase", meta("Phase", "interview"))
-    state.setdefault("complete", False)
-    state.setdefault("roster", [])
-    state.setdefault("tensionPairs", [])
-    state.setdefault("costEstimate", "")
-    state.setdefault("phases", list(PHASE_ORDER))
+    string_defaults = {
+        "themeName": "Council",
+        "mode": "standard",
+        "profile": meta("Profile", "balanced"),
+        "backend": meta("Backend", "workflow"),
+        "sessionId": meta("Session ID", session_dir.name),
+        "date": meta("Date", ""),
+        "phase": meta("Phase", "interview"),
+        "costEstimate": "",
+    }
+    for key, default in string_defaults.items():
+        if not isinstance(state.get(key), str):
+            state[key] = default
+    state["complete"] = bool(state.get("complete"))
+    for key in ("roster", "tensionPairs"):
+        if not isinstance(state.get(key), list):
+            state[key] = []
+    state["roster"] = [m for m in state["roster"] if isinstance(m, dict)]
+    if not isinstance(state.get("phases"), list):
+        state["phases"] = list(PHASE_ORDER)
     return state
 
 
@@ -160,6 +224,7 @@ def phase_status(state, phase_id, phases):
     if state.get("complete"):
         return "done"
     current = state.get("phase", phases[0] if phases else "interview")
+    current = PHASE_ALIASES.get(current, current)
     try:
         current_idx = phases.index(current)
     except ValueError:
@@ -177,7 +242,7 @@ def badge(status):
 
 
 def card(title, color, status, body_html, summary_label="View"):
-    dot = '<i class="dot" style="background:%s"></i>' % esc(color or "#6b7078")
+    dot = '<i class="dot" style="background:%s"></i>' % safe_color(color)
     head = '<div class="card-head">%s<span class="card-title">%s</span>%s</div>' % (
         dot,
         esc(title),
@@ -235,8 +300,8 @@ def build_assembly(state, session_dir, status):
         return '<p class="muted">Assembly has not selected a bench yet.</p>'
     rows = []
     for member in roster:
-        skills = ", ".join(member.get("skills", [])) or "&mdash;"
-        dot = '<i class="dot" style="background:%s"></i> ' % esc(member.get("color", "#6b7078"))
+        skills = ", ".join(esc(s) for s in member.get("skills") or []) or "&mdash;"
+        dot = '<i class="dot" style="background:%s"></i> ' % safe_color(member.get("color"))
         score = member.get("score", "")
         rows.append(
             "<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
@@ -254,17 +319,19 @@ def build_assembly(state, session_dir, status):
 def round_cards(state, session_dir, round_dir, empty_note):
     roster = state.get("roster", [])
     cards = []
+    files = {p.name.lower(): p for p in round_dir.glob("*.md")} if round_dir.is_dir() else {}
     seen = set()
     for member in roster:
         name = member.get("name", "?")
-        path = round_dir / ("%s.md" % name)
-        if path.exists():
-            seen.add(path.name)
+        path = files.get(("%s.md" % name).lower())
+        if path:
+            seen.add(path.name.lower())
             cards.append(card(name, member.get("color"), "done", md_to_html(read_text(path)), "View position"))
         else:
             cards.append(card(name, member.get("color"), "pending", ""))
-    for path in sorted(round_dir.glob("*.md")):
-        if path.name not in seen and not roster:
+    for key in sorted(files):
+        if key not in seen:
+            path = files[key]
             cards.append(card(path.stem, None, "done", md_to_html(read_text(path)), "View position"))
     if not cards:
         return '<p class="muted">%s</p>' % esc(empty_note)
@@ -284,8 +351,8 @@ def build_deliberation(state, session_dir, status):
             else:
                 a, b = (list(pair) + ["?", "?"])[:2]
                 tension = ""
-            dot_a = '<i class="dot" style="background:%s"></i>' % esc(roster_color(state, a) or "#6b7078")
-            dot_b = '<i class="dot" style="background:%s"></i>' % esc(roster_color(state, b) or "#6b7078")
+            dot_a = '<i class="dot" style="background:%s"></i>' % safe_color(roster_color(state, a))
+            dot_b = '<i class="dot" style="background:%s"></i>' % safe_color(roster_color(state, b))
             label = ": %s" % esc(tension) if tension else ""
             chips.append(
                 '<span class="pair">%s%s<span class="vs">VS</span>%s%s%s</span>'
@@ -391,7 +458,7 @@ def build_page(state, session_dir, template):
 
     roster = state.get("roster", [])
     if roster:
-        colors = [m.get("color", "#6b7078") for m in roster]
+        colors = [safe_color(m.get("color")) for m in roster]
         step = 100.0 / len(colors)
         stops = []
         for idx, color in enumerate(colors):
@@ -400,14 +467,14 @@ def build_page(state, session_dir, template):
         spectrum = ", ".join(stops)
         bench = "".join(
             '<span><i class="dot" style="background:%s"></i>%s</span>'
-            % (esc(m.get("color", "#6b7078")), esc(m.get("name", "?")))
+            % (safe_color(m.get("color")), esc(m.get("name", "?")))
             for m in roster
         )
     else:
         spectrum = "#3a3f4a 0%, #3a3f4a 100%"
         bench = '<span class="muted">Bench not yet assembled</span>'
 
-    refresh = "" if state.get("complete") else '<meta http-equiv="refresh" content="10">'
+    refresh = "" if state.get("complete") else AUTO_REFRESH_SCRIPT
     replacements = {
         "{{META_REFRESH}}": refresh,
         "{{TITLE}}": esc("%s Live: %s" % (state["themeName"], state["idea"][:60])),
@@ -445,7 +512,12 @@ def main(argv):
         return 1
     template = read_text(template_path)
     state = load_state(session_dir)
-    (session_dir / "session.html").write_text(build_page(state, session_dir, template), encoding="utf-8")
+    # Atomic replace: parallel workflow agents each run the scribe, and the
+    # browser auto-reloads, so a truncating in-place write risks torn reads.
+    out_path = session_dir / "session.html"
+    tmp_path = session_dir / ("session.html.%d.tmp" % os.getpid())
+    tmp_path.write_text(build_page(state, session_dir, template), encoding="utf-8")
+    os.replace(tmp_path, out_path)
     return 0
 
 
