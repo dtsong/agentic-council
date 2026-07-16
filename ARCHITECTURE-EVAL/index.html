@@ -1,0 +1,1000 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent deliberation councils for Claude Code — distinct perspectives, unified design, every decision tracked.">
+      
+      
+      
+        <link rel="canonical" href="https://dtsong.github.io/agentic-council/ARCHITECTURE-EVAL/">
+      
+      
+        <link rel="prev" href="../ORCHESTRATION/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Architecture eval - agentic-council</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture-evaluation-v11-v12" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="agentic-council" class="md-header__button md-logo" aria-label="agentic-council" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentic-council
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture eval
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dtsong/agentic-council" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dtsong/agentic-council
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="agentic-council" class="md-nav__button md-logo" aria-label="agentic-council" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    agentic-council
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dtsong/agentic-council" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dtsong/agentic-council
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USAGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COUNCILS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Councils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COST-GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ORCHESTRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture eval
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture eval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-v11-got-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What v1.1 got right
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-v11-got-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What v1.1 got wrong
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What v1.1 got wrong">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-stale-undifferentiated-model-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Stale, undifferentiated model pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-no-cost-model-for-either-kind-of-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. No cost model for either kind of user
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-orchestration-bet-entirely-on-an-experimental-primitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Orchestration bet entirely on an experimental primitive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflows-vs-agent-teams-the-per-phase-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflows vs agent teams — the per-phase decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-profile-design-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost-profile design notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback-compatibility-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback / compatibility matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deferred-v13-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred (v1.3 candidates)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/dtsong/agentic-council/blob/main/INSTALL.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/dtsong/agentic-council/blob/main/CHANGELOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-v11-got-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What v1.1 got right
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-v11-got-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What v1.1 got wrong
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What v1.1 got wrong">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-stale-undifferentiated-model-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Stale, undifferentiated model pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-no-cost-model-for-either-kind-of-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. No cost model for either kind of user
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-orchestration-bet-entirely-on-an-experimental-primitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Orchestration bet entirely on an experimental primitive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflows-vs-agent-teams-the-per-phase-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflows vs agent teams — the per-phase decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-profile-design-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost-profile design notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback-compatibility-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback / compatibility matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deferred-v13-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred (v1.3 candidates)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/dtsong/agentic-council/edit/main/docs/ARCHITECTURE-EVAL.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<p><a href="../">Docs home</a> · <a href="../USAGE/">Usage</a> · <a href="../COUNCILS/">Councils</a> · <a href="../COST-GUIDE/">Cost guide</a> · <a href="../ORCHESTRATION/">Orchestration</a> · <strong>Architecture eval</strong></p>
+<h1 id="architecture-evaluation-v11-v12">Architecture Evaluation — v1.1 → v1.2<a class="headerlink" href="#architecture-evaluation-v11-v12" title="Permanent link">&para;</a></h1>
+<p><em>June 2026. The design record behind the v1.2.0 changes: cost profiles, model un-pinning, and workflow-first orchestration.</em></p>
+<h2 id="what-v11-got-right">What v1.1 got right<a class="headerlink" href="#what-v11-got-right" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>One engine, four themes.</strong> <code>commands/_council-engine.md</code> holds all orchestration; each council supplies ~50 lines of theme variables. Adding the finance/people/revenue councils cost ~0% duplication. This is the architecture's load-bearing wall — keep it.</li>
+<li><strong>Disk-mediated context flow.</strong> Every round writes to <code>$SESSION_DIR/deliberation/</code>; later agents read from disk instead of inheriting a bloated context. A 7-agent, 3-round deliberation that would overflow any single context window stays lean. This convention is also what made the v1.2 workflow migration cheap — fresh-context workflow agents pick up exactly where persistent teammates left off, because the state was never in a context window to begin with.</li>
+<li><strong>Organic tension pairing.</strong> Round 2 pairs emerge from reading Round 1 positions rather than hardcoded rules. Real disagreements surface; fake ones don't.</li>
+<li><strong>The skill system as methodology capture.</strong> 60+ skills are structured prompts (Process + Quality Checks + Evolution Notes), not libraries. They make agent output consistent and defensible (STRIDE, WCAG 2.2 AA, etc.).</li>
+</ul>
+<h2 id="what-v11-got-wrong">What v1.1 got wrong<a class="headerlink" href="#what-v11-got-wrong" title="Permanent link">&para;</a></h2>
+<h3 id="1-stale-undifferentiated-model-pinning">1. Stale, undifferentiated model pinning<a class="headerlink" href="#1-stale-undifferentiated-model-pinning" title="Permanent link">&para;</a></h3>
+<p>All 38 agent files pinned <code>model: "claude-opus-4-6"</code> — two model generations stale by June 2026, with a 38-file maintenance burden on every release. Worse, the pin was <em>undifferentiated</em>: a position statement, an adversarial rebuttal, and an audit sweep have very different intelligence requirements, and every user — regardless of billing model — paid Opus prices for all of them.</p>
+<p><strong>v1.2 fix:</strong> agents declare <code>model: inherit</code>; the engine passes an explicit tier alias (<code>sonnet</code>/<code>opus</code>/<code>fable</code>) on every spawn, routed by a <strong>spawn-site × profile table</strong>. <code>scripts/validate.py</code> now rejects any pinned <code>claude-*</code> ID, making the stale-pin failure mode unrepeatable.</p>
+<h3 id="2-no-cost-model-for-either-kind-of-user">2. No cost model for either kind of user<a class="headerlink" href="#2-no-cost-model-for-either-kind-of-user" title="Permanent link">&para;</a></h3>
+<p>Two personas, neither served:</p>
+<ul>
+<li><strong>Enterprise / API-billed (token-conscious, Sonnet 4.6 default).</strong> Wants Sonnet everywhere except where extra intelligence demonstrably pays. The highest-leverage spot in a deliberation is the <strong>Round 2 challenge</strong> — it's where positions actually move. <code>--profile lean</code> runs R1/R3 on Sonnet and spawns fresh Opus one-shots per tension pair (they read both Round 1 files from disk). Roughly 40% cheaper than balanced with most of the debate quality retained.</li>
+<li><strong>Claude Max subscriber ($100–200/mo, rate-limit-bound, not dollar-bound).</strong> Wants maximum value, deliberately. <code>--profile max</code> keeps Opus everywhere and upgrades challenges to Fable one-shots; pairing it with <code>/model opus|fable</code> for the conductor covers synthesis — the single highest-leverage model choice in the whole session, since the conductor writes the design doc and PRD.</li>
+</ul>
+<p>Cost transparency was also zero: a standard session burned 120–180K tokens with no warning. v1.2 prints a mode × profile estimate at the roster-approval gate, before anything spawns.</p>
+<h3 id="3-orchestration-bet-entirely-on-an-experimental-primitive">3. Orchestration bet entirely on an experimental primitive<a class="headerlink" href="#3-orchestration-bet-entirely-on-an-experimental-primitive" title="Permanent link">&para;</a></h3>
+<p>The engine hard-exited without <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> — even for brainstorm and audit modes that never used teams. Meanwhile Anthropic shipped <strong>dynamic workflows</strong> (GA on all paid plans): script-driven orchestration, background execution, in-session resume, and intermediate results that never touch the main context.</p>
+<h2 id="workflows-vs-agent-teams-the-per-phase-decision">Workflows vs agent teams — the per-phase decision<a class="headerlink" href="#workflows-vs-agent-teams-the-per-phase-decision" title="Permanent link">&para;</a></h2>
+<p>Anthropic's own framing is "who holds the plan": with teams, the lead decides turn by turn; with a workflow, the script decides. Applying that per phase:</p>
+<table>
+<thead>
+<tr>
+<th>Phase / mode</th>
+<th>Plan-holder</th>
+<th>v1.2 primitive</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intake, interview, approvals</td>
+<td>the user</td>
+<td><strong>main loop</strong></td>
+<td>Workflows can't take mid-run input; gates belong in conversation</td>
+</tr>
+<tr>
+<td>brainstorm, quick</td>
+<td>nobody (one fan-out)</td>
+<td><strong>inline Task</strong></td>
+<td>3 one-shots; any orchestration runtime is overhead</td>
+</tr>
+<tr>
+<td>standard/auto/deep/guided deliberation</td>
+<td><strong>fixed</strong> (R1 → pair → R2 → R3 → synthesize)</td>
+<td><strong>workflow</strong></td>
+<td>Deterministic round structure is exactly script-shaped; round texts stay out of the conductor's context; resumable; no experimental flag</td>
+</tr>
+<tr>
+<td><code>--meet</code> cross-examination</td>
+<td>emergent (who asks whom, follow-ups, user steering)</td>
+<td><strong>teams</strong> (degrades)</td>
+<td>Direct agent-to-agent messaging and Shift+Down steering are teams' core value</td>
+</tr>
+<tr>
+<td>Path A execution</td>
+<td>shared task list w/ dependencies</td>
+<td><strong>teams</strong> (degrades)</td>
+<td>File locking, dependency unblocking, per-task plan approval are team features</td>
+</tr>
+<tr>
+<td>Deep audit (5D)</td>
+<td>fixed loop-until-converged</td>
+<td><strong>workflow</strong></td>
+<td>Replaces the hand-rolled checkpoint/respawn machinery; <code>budget</code> gives a hard token ceiling</td>
+</tr>
+</tbody>
+</table>
+<p>Degradation order everywhere: preferred backend → the other → sequential Task calls. The engine never hard-exits on a missing runtime again. The teams flag is now an optional enhancement (two features), not a gate on the whole plugin.</p>
+<p><strong>Primary quality risk accepted:</strong> workflow agents are fresh contexts, so a member doesn't "remember" its Round 1 reasoning the way a persistent teammate does. Mitigation: every R2/R3 prompt instructs the agent to read its own prior round file first ("it is YOUR prior work"). The teams deliberation path is retained verbatim as a fallback, which also makes A/B comparison possible if deliberation depth regresses.</p>
+<p><strong>Why not ship the scripts as saved workflows?</strong> Plugins can't ship a <code>workflows/</code> component (verified against the plugin spec, June 2026 — recognized dirs are skills/commands/agents/hooks/mcp/lsp/monitors/bin). The templates live in <code>references/workflows/*.template.js</code>; the conductor injects session specifics into a marked <code>INPUT</code> line and runs a per-session copy via the Workflow tool's <code>scriptPath</code>. (This replaced passing everything through the runtime <code>args</code> global, which proved unreliable for large nested payloads — see ORCHESTRATION.md.) If plugin workflow distribution lands later, promote them to first-class saved workflows.</p>
+<h2 id="cost-profile-design-notes">Cost-profile design notes<a class="headerlink" href="#cost-profile-design-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Routing is keyed by spawn site, not round</strong>, because a teammate's model is fixed at spawn. The lean/max R2 upgrade therefore uses <em>fresh one-shot spawns</em> per tension pair rather than a mid-flight model swap — possible only because round state lives on disk.</li>
+<li><strong>Brainstorm stays Sonnet in every profile.</strong> It's the mode new users try first; don't make it slower or dumber to save pennies, and don't let <code>max</code> make a 30-second gut check expensive.</li>
+<li><strong>The conductor is documented, not controlled.</strong> It's the main session; the plugin can't set its model. The roster-approval estimate echoes the current <code>/model</code> so a mismatch (max profile + haiku conductor) is visible before spending.</li>
+<li><strong>Estimates are coarse by design.</strong> Prompt logic can't meter tokens; ranges are honest about that. The hard ceiling, where it matters, is the workflow <code>budget</code>.</li>
+</ul>
+<h2 id="fallback-compatibility-matrix">Fallback / compatibility matrix<a class="headerlink" href="#fallback-compatibility-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>WF ✓ Teams ✓</th>
+<th>WF ✓ Teams ✗</th>
+<th>WF ✗ Teams ✓</th>
+<th>Neither</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>brainstorm / quick</td>
+<td>inline</td>
+<td>inline</td>
+<td>inline</td>
+<td>inline</td>
+</tr>
+<tr>
+<td>standard / auto / deep / guided</td>
+<td>workflow</td>
+<td>workflow</td>
+<td>teams (v1.1 behavior)</td>
+<td>sequential</td>
+</tr>
+<tr>
+<td>meeting</td>
+<td><strong>teams</strong></td>
+<td>workflow, no live steering (notice printed)</td>
+<td>teams</td>
+<td>sequential</td>
+</tr>
+<tr>
+<td>Path A execution</td>
+<td><strong>teams</strong></td>
+<td>sequential over the TaskCreate dependency list</td>
+<td>teams</td>
+<td>sequential</td>
+</tr>
+<tr>
+<td>audit / 5D</td>
+<td>workflow</td>
+<td>workflow</td>
+<td>conductor waves (v1.1)</td>
+<td>conductor waves</td>
+</tr>
+</tbody>
+</table>
+<p>Session layout, index/registry schemas, resume slugs, and archive format are unchanged. <code>session.md</code> gains <code>Profile:</code> and <code>Backend:</code>; both default sensibly when absent, so pre-v1.2 sessions resume cleanly.</p>
+<h2 id="deferred-v13-candidates">Deferred (v1.3 candidates)<a class="headerlink" href="#deferred-v13-candidates" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Worktree-isolated workflow execution for Path A</strong> — <code>agent(…, {isolation: 'worktree'})</code> could replace teams for parallel implementation without file conflicts.</li>
+<li><strong>Post-session token actuals</strong> — currently approximated (artifact word count); a harness-level usage surface would make it real.</li>
+<li><strong>First-class saved workflows</strong> — if/when plugins can ship a <code>workflows/</code> component.</li>
+<li><strong>Meeting mode on workflows with steering</strong> — would need mid-run user input, which workflows deliberately don't support; revisit if that changes.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../ORCHESTRATION/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Orchestration">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Orchestration
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.footer", "search.suggest", "search.highlight", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
