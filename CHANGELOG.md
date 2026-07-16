@@ -4,6 +4,16 @@ All notable changes to agentic-council are documented here. Format follows [Keep
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-14
+
+### Added
+- **Live session page.** Every mode except `--brainstorm` opens `session.html` at session start: a single self-contained page that fills in as the session progresses (interview Q&A and detail asides, the scored bench with lens colors, deliberation positions card by card, tension pairs, challenge exchanges, the design verdict, PRD scope, verification status). A stdlib-only python scribe (`references/render-session.py`, copied into each session dir with its template) regenerates the page after every artifact write; the page auto-refreshes from disk every 10 seconds and drops the refresh tag when the session completes. Deliberation agents rerun the scribe themselves via the new optional `scribePath` input on `council-deliberation.template.js`, so positions appear on the page as they finish. Degrades silently without python3 or a browser.
+- **HTML design verdict.** At the design-approval touchpoint (standard/deep/guided), the synthesis payload renders as `design.html` from `references/design-verdict.template.html` (lens-color spectrum, tension ledger, decision log) and opens in the browser. Presentation only: `design.md` stays the artifact of record.
+- **Touchpoint Presentation Contract** (engine section). Every `AskUserQuestion` must be self-contained in chat: no "see the detail above", no file-path-only context. Conductor detail asides print compactly in chat, land in `$SESSION_DIR/detail-<n>.md`, and appear in full on the live page. Fixes sessions where users were asked to decide against context they could not see.
+
+### Changed
+- Session dirs gain `session-state.json` (live page state: phase, roster, tension pairs), `session.html`, and pinned copies of the scribe and its template. `--resume` reopens the live page.
+
 ## [1.3.0] - 2026-06-25
 
 ### Changed

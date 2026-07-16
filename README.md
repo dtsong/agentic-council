@@ -10,6 +10,8 @@ Hard engineering problems rarely have one right answer. The data model depends o
 
 Every phase writes to `.claude/council/sessions/<slug>/` as it happens: the interview, the assembled roster, each agent's position, every round of debate, the synthesis, and the final plan. Nothing is lost to a context window. Resume days later, list every council you've ever run, archive a session to a GitHub issue, or replay how a decision was reached when someone asks "why did we do it this way?".
 
+And you watch it happen live: every session (except `--brainstorm`) opens `session.html` in your browser, a single page that fills in as the council works. Positions appear card by card as agents finish, tension pairs surface, and the design verdict, PRD scope, and verification status land as each phase completes. The page auto-refreshes from disk every 10 seconds via a zero-dependency python scribe; if python3 or a browser is missing, the session degrades to text-only with nothing lost, and chat always carries a compact summary of every decision.
+
 ## Install
 
 ```

@@ -19,6 +19,8 @@ A full (default) session moves through six phases. You are in the loop at every 
 
 Every phase writes artifacts to `.claude/council/sessions/<slug>-<timestamp>/` in your workspace — nothing lives only in a context window.
 
+Every mode except `--brainstorm` also opens `session.html`, a live page that auto-refreshes as the session progresses: interview Q&A, the scored bench, deliberation positions card by card, tension pairs, the design verdict (linking to `design.html`), PRD scope, and verification status. A python scribe (`render-session.py`, copied into the session dir) regenerates it after every artifact write; it needs nothing but `python3` and degrades silently when unavailable.
+
 ## Modes
 
 | Command | Time | What you get |
